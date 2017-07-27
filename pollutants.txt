@@ -1,0 +1,6 @@
+<aqd:pollutants>
+<aqd:Pollutant>
+<aqd:pollutantCode xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{cp_number}"/>
+<aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{pt_code}"/>
+</aqd:Pollutant>
+</aqd:pollutants>

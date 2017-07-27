@@ -1,0 +1,88 @@
+<gml:featureMember>		
+<aqd:AQD_Zone gml:id="ZON-{zone.zn_code}">	
+<am:inspireId>		
+<base:Identifier>		
+<base:localId>ZON-{zone.zn_code}</base:localId>
+<base:namespace>HU.OMSZ.AQ</base:namespace>
+<base:versionId>AQIS1.1</base:versionId>
+</base:Identifier>		
+</am:inspireId>				
+<am:name>		
+<gn:GeographicalName>		
+<gn:language nilReason="missing" xsi:nil="true"/>		
+<gn:nativeness nilReason="missing" xsi:nil="true"/>		
+<gn:nameStatus nilReason="missing" xsi:nil="true"/>		
+<gn:sourceOfName nilReason="missing" xsi:nil="true"/>		
+<gn:pronunciation nilReason="missing" xsi:nil="true"/>		
+<gn:spelling>		
+<gn:SpellingOfName>		
+<gn:text>{zone.zn_name}</gn:text>
+<gn:script nilReason="missing" xsi:nil="true"/>		
+</gn:SpellingOfName>		
+</gn:spelling>		
+</gn:GeographicalName>		
+</am:name>				
+<am:geometry/>		
+<am:zoneType xlink:href="http://inspire.ec.europa.eu/codeList/ZoneTypeCode/airQualityManagementZone"/>		
+<am:designationPeriod>		
+<gml:TimePeriod gml:id="{zone.zn_code}_DESIGNATION_PERIOD">		
+<gml:beginPosition>2002-01-01T00:00:00+01:00</gml:beginPosition>
+<gml:endPosition indeterminatePosition="unknown"/> 		
+</gml:TimePeriod>		
+</am:designationPeriod>		
+<am:environmentalDomain xlink:href="http://dd.eionet.europa.eu/vocabulary/common/environmentaldomain/air"/>		
+<am:competentAuthority>		
+<base2:RelatedParty>		
+<base2:individualName>		
+<gmd:LocalisedCharacterString>{resp.ps_last_name}{resp.ps_first_name}</gmd:LocalisedCharacterString>
+</base2:individualName>		
+<base2:organisationName>		
+<gmd:LocalisedCharacterString>{resp.og_name}</gmd:LocalisedCharacterString>
+</base2:organisationName>		
+<base2:contact>		
+<base2:Contact>		
+<base2:address>		
+<ad:AddressRepresentation>		
+<ad:adminUnit>		
+<gn:GeographicalName>		
+<gn:language nilReason="missing" xsi:nil="true"/>		
+<gn:nativeness nilReason="missing" xsi:nil="true"/>		
+<gn:nameStatus nilReason="missing" xsi:nil="true"/>		
+<gn:sourceOfName nilReason="missing" xsi:nil="true"/>		
+<gn:pronunciation nilReason="missing" xsi:nil="true"/>		
+<gn:spelling>		
+<gn:SpellingOfName>		
+<gn:text>{resp.og_address}</gn:text>
+<gn:script nilReason="missing" xsi:nil="true"/>		
+</gn:SpellingOfName>		
+</gn:spelling>		
+</gn:GeographicalName>		
+</ad:adminUnit>		
+<ad:locatorDesignator>{resp.og_city}</ad:locatorDesignator>
+</ad:AddressRepresentation>		
+</base2:address>		
+<base2:electronicMailAddress>{resp.ps_email_address}</base2:electronicMailAddress>
+<base2:telephoneVoice>{resp.og_phone_number}</base2:telephoneVoice>
+<base2:website>{resp.og_website_address}</base2:website>
+</base2:Contact>		
+</base2:contact>		
+<base2:role/>		
+</base2:RelatedParty>		
+</am:competentAuthority>		
+<am:beginLifespanVersion>2016-10-06T11:35:06+01:00</am:beginLifespanVersion>
+<am:legalBasis xlink:href="http://rod.eionet.europa.eu/instruments/650"/>		
+<aqd:zoneCode>{zone.zn_code}</aqd:zoneCode>
+<aqd:aqdZoneType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/zonetype/{zone.zn_type}"/>		
+<aqd:changeDocumentation></aqd:changeDocumentation>		
+<aqd:residentPopulation>{zone.zn_population}</aqd:residentPopulation>
+<aqd:residentPopulationYear>		
+<gml:TimeInstant gml:id="{zone.zn_code}_POPULATION">		
+<gml:timePosition>{zone.zn_population_year}</gml:timePosition>
+</gml:TimeInstant>		
+</aqd:residentPopulationYear>		
+<aqd:area uom="km2">{zone.zn_area}</aqd:area>
+{pollutants_list}
+<aqd:timeExtensionExemption xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/timeextensiontypes/none"/>
+<aqd:shapefileLink>http://cdr.eionet.europa.eu/hu/eu/aqd/b/envvn2fa/{zone.zn_code}.shp</aqd:shapefileLink>
+</aqd:AQD_Zone>
+</gml:featureMember>
