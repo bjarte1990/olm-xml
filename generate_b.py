@@ -1,8 +1,6 @@
 import sys
-import re
-import io
 import pandas as pd
-import pyodbc
+from generator import *
 
 # variables
 NAMESPACE = 'HU.OMSZ.AQ'
@@ -22,23 +20,6 @@ GET_POLLUTANT_QUERY = "SELECT * FROM AQD_zone_pollutant " \
 GET_ZONES_QUERY = "SELECT * FROM AQD_ZONE WHERE nn_code_iso2='hu';"
 
 
-def init_connection(drv, mdb):
-
-    conn_str = 'DRIVER={driver};DBQ={mdb_location}'
-    return pyodbc.connect(conn_str.format(driver=drv, mdb_location=mdb))
-
-
-def read_structure(filename):
-    fhand = open(filename)
-    structure = fhand.read()
-    fhand.close()
-    return structure
-
-
-def get_fields_to_replace(text, prefix=''):
-    return set(filter(lambda x: x.startswith(prefix), re.findall('\{([^\}]*)\}', text)))
-
-
 def get_zone_list(zones_df):
     zone_list = ''
     for index, row in zones_df.iterrows():
@@ -48,7 +29,7 @@ def get_zone_list(zones_df):
     return zone_list
 
 
-def create_responsible_part(con, responsible_df, zones_df):
+def create_responsible_part(responsible_df, zones_df):
     structure = read_structure('resp.txt')
     resp_to_replace = get_fields_to_replace(structure, prefix='resp')
 
@@ -61,16 +42,6 @@ def create_responsible_part(con, responsible_df, zones_df):
         responsible_string += actual_person
 
     return responsible_string
-
-
-def sub_all(from_list, to_df, text):
-    for r in from_list:
-        if '.' in r:
-            column = r.split('.')[1]
-        else:
-            column = r
-        text = re.sub('\{' + r + '\}', str(to_df[column]), text)
-    return text
 
 
 def get_pollutants_for_zone(con, zone_code):
@@ -111,7 +82,7 @@ def create_zones(con, zones_df, responsible_person):
 
 
 def create_xml_structure(con, responsible_df, zones_df):
-    responsible = create_responsible_part(con, responsible_df, zones_df)
+    responsible = create_responsible_part(responsible_df, zones_df)
     # todo in case of more responsible....
     zones = create_zones(con, zones_df, responsible_df.iloc[0])
     header = read_structure('header.txt')
@@ -120,12 +91,6 @@ def create_xml_structure(con, responsible_df, zones_df):
     xml = re.sub('\{zones_xml_part\}', zones, xml)
 
     return xml
-
-
-def save_xml(xml, filename='B.xml'):
-    f = io.open(filename, 'w+', encoding="utf-8")
-    f.write(xml)
-    f.close()
 
 
 def main(drv, mdb):
