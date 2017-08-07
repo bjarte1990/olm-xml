@@ -19,7 +19,7 @@
 </aqd:environmentalObjective>		
 <aqd:exceedanceAttainment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmentthresholdexceedance/{WHATISTHIS:belowLAT}"/>
 <aqd:classificationDate>		
-<gml:TimeInstant gml:id="ARE_T-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}{year}"/>
+<gml:TimeInstant gml:id="ARE_T-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}{year}">
 <gml:timePosition>{year}</gml:timePosition>
 </gml:TimeInstant>		
 </aqd:classificationDate>		

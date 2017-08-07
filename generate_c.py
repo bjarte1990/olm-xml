@@ -11,6 +11,10 @@ CODE_COMB = 3
 AREAS_STRING = '<aqd:content xlink:href="{namespace}/ARE-{zn_code}_{cp_number}_' \
                '{objective_type}_{rep_metric}_{year}"/>'
 
+SAMPLING_POINTS_STRING = '<aqd:samplingPointAssessmentMetadata ' \
+                         'xlink:href="{namespace}/' \
+                         'SPO-{sn_eu_code}_{cp_number}_{mc_group_code}"/>'
+
 #todo must get rid of it
 GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
                         "INNER JOIN person p on p.ps_code = ra.ps_code) " \
@@ -18,20 +22,27 @@ GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
                         "WHERE ra.nn_code_iso2 = 'hu' AND ra.ac_code_comb = {code_comb}"
 
 # todo filtering to H is good?
-ZONE_METRIC_SQL = "SELECT p.nn_code_iso2, p.zn_code, p.cp_number, eo.pt_poll_code, " \
-                  "eo.objective_type, eo.rep_metric, eo.pt_code " \
-                  "FROM AQD_zone_pollutant p INNER JOIN AQD_environmental_objective eo " \
-                  "ON p.cp_number = eo.cp_number " \
+ZONE_METRIC_SQL = "SELECT " \
+                  "p.nn_code_iso2, p.zn_code, p.cp_number, eo.pt_poll_code, " \
+                  "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code  " \
+                  "FROM (AQD_zone_pollutant p INNER JOIN AQD_environmental_objective eo " \
+                  "ON p.cp_number = eo.cp_number) " \
+                  "INNER JOIN AQD_sampling_point_for_compliance sp " \
+                  "ON p.cp_number = sp.cp_number AND p.zn_code = sp.zn_code " \
                   "WHERE p.nn_code_iso2 = 'hu' " \
                   "AND eo.objective_type NOT IN ('lvmot', 'eco', 'ert') " \
                   "AND eo.pt_code = 'H' " \
-                  "GROUP BY p.nn_code_iso2, p.zn_code, p.cp_number, eo.pt_poll_code, " \
-                  "eo.objective_type, eo.rep_metric, eo.pt_code"
+                  "GROUP BY p.nn_code_iso2, p.zn_code, p.cp_number, " \
+                  "eo.pt_poll_code, " \
+                  "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code"
 
-SAMPLING_POINT_QUERY = "SELECT sp.zn_code, sp.cp_number, sp.mc_group_code, s.sn_eu_code " \
+
+
+SAMPLING_POINT_QUERY = "SELECT sp.sn_code, sp.zn_code, sp.cp_number, sp.mc_group_code, s.sn_eu_code " \
                        "FROM AQD_sampling_point_for_compliance sp INNER JOIN station s " \
                        "ON sp.sn_code = s.sn_code " \
                        "WHERE s.nn_code_iso2 = 'hu'"
+
 
 def get_areas_string(zone_metrics_df):
     # todo init competent authorities, now it is hardcoded
@@ -69,10 +80,23 @@ def create_responsible_part(responsible_df, zone_metrics_df):
 
     return responsible_string
 
-def create_areas(zone_metrics_df):
+
+def generate_sampling_points(sampling_points_df):
+    structure = re.sub('\{namespace\}', NAMESPACE, SAMPLING_POINTS_STRING)
+    poll_to_replace = get_fields_to_replace(structure)
+
+    pollutants_string = ''
+    for index, row in sampling_points_df.iterrows():
+        pollutants_string += sub_all(poll_to_replace, row, structure) + '\n'
+
+    print(pollutants_string)
+    return pollutants_string.rstrip()
+
+
+def create_areas(zone_metrics_df, sampling_points_df):
     structure = read_structure('areas.txt')
     areas_to_replace = get_fields_to_replace(structure, prefix='zone')
-    print(areas_to_replace)
+    #print(areas_to_replace)
     #todo deal with WHATISTHIS
 
     areas_string = ''
@@ -85,21 +109,48 @@ def create_areas(zone_metrics_df):
 
         areas_string += actual_area
 
+        actual_sampling_points = sampling_points_df[
+            sampling_points_df['cp_number'] == row['cp_number']]
+        actual_sampling_points = actual_sampling_points.loc[
+             (actual_sampling_points['zn_code'] == row['zn_code'])]
+
+        sn_codes = list(actual_sampling_points['sn_code'].drop_duplicates())
+        print(sn_codes)
+
+        actual_sampling_points = sampling_points_df[
+            sampling_points_df['sn_code'].isin(sn_codes)]
+        actual_sampling_points = actual_sampling_points.loc[
+            (actual_sampling_points['cp_number'] == row['cp_number'])]
+
+        areas_string = re.sub('\{sampling_points\}',
+                              generate_sampling_points(actual_sampling_points), areas_string)
+
     areas_string = re.sub('\{year\}', YEAR, areas_string)
 
-    print(areas_string)
+    return areas_string
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)
     responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB), con)
     zone_metrics_df = pd.read_sql_query(ZONE_METRIC_SQL, con)
 
+    zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
+                                                              'objective_type','rep_metric',])
+
     responsible_string = create_responsible_part(responsible_df,zone_metrics_df)
 
     sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
 
-    create_areas(zone_metrics_df)
-    #print(responsible_string)
+    print(sampling_points_df.loc[sampling_points_df['cp_number'] == 20])
+
+    zones_string = create_areas(zone_metrics_df, sampling_points_df)
+
+    xml = read_structure('header_c.txt')
+    xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
+    xml = re.sub('\{zones_xml_part\}', zones_string, xml)
+
+    save_xml(xml, filename='C.xml')
+    #print(zone_metrics_df)
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
