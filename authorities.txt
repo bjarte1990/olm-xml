@@ -1,0 +1,230 @@
+		<aqd:CompetentAuthorities gml:id="REP_C-2015_2015">
+			<aqd:assessmentAirQuality>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>{aaq.ps_last_name}{aaq.ps_first_name}</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>{aaq.og_name}</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>{aaq.og_address}</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>{aaq.og_city}</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>{aaq.ps_email_address}</base2:electronicMailAddress>
+							<base2:telephoneVoice>{aaq.og_phone_number}</base2:telephoneVoice>
+							<base2:website>{aaq.og_city}</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:assessmentAirQuality>
+			<aqd:approvalMeasurementSystems>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>DezsiViktor</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>OMSZ - Hungarian Meteorological Service</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>H-1181 Budapest Gilice ter 39.</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>Budapest</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>dezsi.v@met.hu</base2:electronicMailAddress>
+							<base2:telephoneVoice>+3613464800</base2:telephoneVoice>
+							<base2:website>http://www.met.hu</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:approvalMeasurementSystems>
+			<aqd:accuracyMeasurements>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>DezsiViktor</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>OMSZ - Hungarian Meteorological Service</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>H-1181 Budapest Gilice ter 39.</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>Budapest</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>dezsi.v@met.hu</base2:electronicMailAddress>
+							<base2:telephoneVoice>+3613464800</base2:telephoneVoice>
+							<base2:website>http://www.met.hu</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:accuracyMeasurements>
+			<aqd:analysisAssessmentMethod>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>DezsiViktor</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>OMSZ - Hungarian Meteorological Service</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>H-1181 Budapest Gilice ter 39.</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>Budapest</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>dezsi.v@met.hu</base2:electronicMailAddress>
+							<base2:telephoneVoice>+3613464800</base2:telephoneVoice>
+							<base2:website>http://www.met.hu</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:analysisAssessmentMethod>
+			<aqd:nationWideQualityAssurance>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>DezsiViktor</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>OMSZ - Hungarian Meteorological Service</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>H-1181 Budapest Gilice ter 39.</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>Budapest</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>dezsi.v@met.hu</base2:electronicMailAddress>
+							<base2:telephoneVoice>+3613464800</base2:telephoneVoice>
+							<base2:website>http://www.met.hu</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:nationWideQualityAssurance>
+			<aqd:cooperationMSCommission>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>VargaJudit</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>Ministry of Agriculture</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>1860 Budapest</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>Budapest</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>judit.varga@vm.gov.hu</base2:electronicMailAddress>
+							<base2:telephoneVoice>+3617952137</base2:telephoneVoice>
+							<base2:website>http://www.kormany.hu/en/ministry-of-agriculture</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</aqd:cooperationMSCommission>
+		</aqd:CompetentAuthorities>

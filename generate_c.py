@@ -8,12 +8,26 @@ YEAR = "2015"
 
 CODE_COMB = 3
 
+#todo authorities code comb
+AAQ = 3 #assessmentAirQuality
+AMS = 60 #approvalMeasurementSystems
+AM = 60 #accuracyMeasurements
+AAM = 60 #analysisAssessmentMethod
+NWQA = 60 #nationWideQualityAssurance
+CMC = 64 #cooperationMSCommission
+
+
 AREAS_STRING = '<aqd:content xlink:href="{namespace}/ARE-{zn_code}_{cp_number}_' \
                '{objective_type}_{rep_metric}_{year}"/>'
 
 SAMPLING_POINTS_STRING = '<aqd:samplingPointAssessmentMetadata ' \
                          'xlink:href="{namespace}/' \
                          'SPO-{sn_eu_code}_{cp_number}_{mc_group_code}"/>'
+
+GET_AUTHORITIES_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
+                        "INNER JOIN person p on p.ps_code=ra.ps_code) " \
+                        "INNER JOIN organization o on o.og_code=ra.og_code " \
+                        "WHERE ra.nn_code_iso2 = 'hu'"
 
 #todo must get rid of it
 GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
@@ -62,6 +76,12 @@ def get_areas_string(zone_metrics_df):
 
     areas_string = areas_string.rstrip()
     return areas_string
+
+def create_authorities_part(authority_df, prefix):
+    structure = read_structure('authorities.txt')
+    au_to_replace = get_fields_to_replace(structure, prefix=prefix)
+
+    return sub_all(au_to_replace, authority_df.loc[0], structure)
 
 
 # todo not nice, have to make a common solution for B and C
@@ -131,25 +151,31 @@ def create_areas(zone_metrics_df, sampling_points_df):
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)
-    responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB), con)
-    zone_metrics_df = pd.read_sql_query(ZONE_METRIC_SQL, con)
 
-    zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
-                                                              'objective_type','rep_metric',])
+    authorities_df = pd.read_sql_query(GET_AUTHORITIES_QUERY, con)
+    aaq = authorities_df[authorities_df['ac_code_comb'] == AAQ]
 
-    responsible_string = create_responsible_part(responsible_df,zone_metrics_df)
+    print(create_authorities_part(aaq, 'aaq'))
 
-    sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
-
-    print(sampling_points_df.loc[sampling_points_df['cp_number'] == 20])
-
-    zones_string = create_areas(zone_metrics_df, sampling_points_df)
-
-    xml = read_structure('header_c.txt')
-    xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
-    xml = re.sub('\{zones_xml_part\}', zones_string, xml)
-
-    save_xml(xml, filename='C.xml')
+    # responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB), con)
+    # zone_metrics_df = pd.read_sql_query(ZONE_METRIC_SQL, con)
+    #
+    # zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
+    #                                                           'objective_type','rep_metric',])
+    #
+    # responsible_string = create_responsible_part(responsible_df,zone_metrics_df)
+    #
+    # sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
+    #
+    # print(sampling_points_df.loc[sampling_points_df['cp_number'] == 20])
+    #
+    # zones_string = create_areas(zone_metrics_df, sampling_points_df)
+    #
+    # xml = read_structure('header_c.txt')
+    # xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
+    # xml = re.sub('\{zones_xml_part\}', zones_string, xml)
+    #
+    # save_xml(xml, filename='C.xml')
     #print(zone_metrics_df)
 
 if __name__ == '__main__':
