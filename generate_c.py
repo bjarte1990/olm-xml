@@ -1,5 +1,4 @@
 import sys
-import re
 import pandas as pd
 from generator import *
 
@@ -51,7 +50,6 @@ ZONE_METRIC_SQL = "SELECT " \
                   "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code"
 
 
-
 SAMPLING_POINT_QUERY = "SELECT sp.sn_code, sp.zn_code, sp.cp_number, sp.mc_group_code, s.sn_eu_code " \
                        "FROM AQD_sampling_point_for_compliance sp INNER JOIN station s " \
                        "ON sp.sn_code = s.sn_code " \
@@ -77,11 +75,32 @@ def get_areas_string(zone_metrics_df):
     areas_string = areas_string.rstrip()
     return areas_string
 
-def create_authorities_part(authority_df, prefix):
-    structure = read_structure('authorities.txt')
+
+def get_authorities_components_df(authorities_df):
+    components = dict()
+    components['aaq'] = authorities_df[authorities_df['ac_code_comb'] == AAQ].reset_index()
+    components['ams'] = authorities_df[authorities_df['ac_code_comb'] == AMS].reset_index()
+    components['am'] = authorities_df[authorities_df['ac_code_comb'] == AM].reset_index()
+    components['aam'] = authorities_df[authorities_df['ac_code_comb'] == AAM].reset_index()
+    components['nwqa'] = authorities_df[authorities_df['ac_code_comb'] == NWQA].reset_index()
+    components['cmc'] = authorities_df[authorities_df['ac_code_comb'] == CMC].reset_index()
+
+    return components
+
+
+def change_authorites_in_structure(authority_df, prefix, structure):
     au_to_replace = get_fields_to_replace(structure, prefix=prefix)
 
     return sub_all(au_to_replace, authority_df.loc[0], structure)
+
+
+def create_authorities(authorities_df):
+    structure = read_structure('authorities.txt')
+    components = get_authorities_components_df(authorities_df)
+    for key,value in components.items():
+        structure = change_authorites_in_structure(value, key, structure)
+
+    return structure
 
 
 # todo not nice, have to make a common solution for B and C
@@ -109,7 +128,6 @@ def generate_sampling_points(sampling_points_df):
     for index, row in sampling_points_df.iterrows():
         pollutants_string += sub_all(poll_to_replace, row, structure) + '\n'
 
-    print(pollutants_string)
     return pollutants_string.rstrip()
 
 
@@ -135,7 +153,6 @@ def create_areas(zone_metrics_df, sampling_points_df):
              (actual_sampling_points['zn_code'] == row['zn_code'])]
 
         sn_codes = list(actual_sampling_points['sn_code'].drop_duplicates())
-        print(sn_codes)
 
         actual_sampling_points = sampling_points_df[
             sampling_points_df['sn_code'].isin(sn_codes)]
@@ -149,34 +166,53 @@ def create_areas(zone_metrics_df, sampling_points_df):
 
     return areas_string
 
+
+def create_dfs(con):
+    responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB),
+                                       con)
+    authorities_df = pd.read_sql_query(GET_AUTHORITIES_QUERY, con)
+    zone_metrics_df = pd.read_sql_query(ZONE_METRIC_SQL, con)
+    zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
+                                                              'objective_type',
+                                                              'rep_metric', ])
+    sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
+
+    return responsible_df,authorities_df,zone_metrics_df,sampling_points_df
+
+
+def generate_string_from_dfs(responsible_df,authorities_df,zone_metrics_df,
+                             sampling_points_df):
+
+    responsible_string = create_responsible_part(responsible_df, zone_metrics_df)
+    authorities_string = create_authorities(authorities_df)
+    zones_string = create_areas(zone_metrics_df, sampling_points_df)
+
+    return responsible_string, authorities_string, zones_string
+
+
+def generate_xml_structure(con, structure_file_name):
+    # define df-s by querying database
+    responsible_df, authorities_df, zone_metrics_df, sampling_points_df = create_dfs(con)
+
+    # create xml parts using df-s
+    responsible_string, authorities_string, zones_string = generate_string_from_dfs(
+        responsible_df, authorities_df, zone_metrics_df, sampling_points_df)
+
+    xml = read_structure('header_c.txt')
+    xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
+    xml = re.sub('\{authorities_xml_part\}', authorities_string, xml)
+    xml = re.sub('\{zones_xml_part\}', zones_string, xml)
+
+    return xml
+
+
 def main(drv, mdb):
     con = init_connection(drv, mdb)
 
-    authorities_df = pd.read_sql_query(GET_AUTHORITIES_QUERY, con)
-    aaq = authorities_df[authorities_df['ac_code_comb'] == AAQ]
+    xml = generate_xml_structure(con, 'header_c.txt')
 
-    print(create_authorities_part(aaq, 'aaq'))
+    save_xml(xml, filename='C.xml')
 
-    # responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB), con)
-    # zone_metrics_df = pd.read_sql_query(ZONE_METRIC_SQL, con)
-    #
-    # zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
-    #                                                           'objective_type','rep_metric',])
-    #
-    # responsible_string = create_responsible_part(responsible_df,zone_metrics_df)
-    #
-    # sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
-    #
-    # print(sampling_points_df.loc[sampling_points_df['cp_number'] == 20])
-    #
-    # zones_string = create_areas(zone_metrics_df, sampling_points_df)
-    #
-    # xml = read_structure('header_c.txt')
-    # xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
-    # xml = re.sub('\{zones_xml_part\}', zones_string, xml)
-    #
-    # save_xml(xml, filename='C.xml')
-    #print(zone_metrics_df)
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
