@@ -1,38 +1,38 @@
-<gml:featureMember>		
-<aqd:AQD_AssessmentRegime gml:id="ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
-<aqd:inspireId>		
-<base:Identifier>		
-<base:localId>ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
-<base:namespace>HU.OMSZ.AQ</base:namespace>
-<base:versionId>AQIS1.1</base:versionId>
-</base:Identifier>		
-</aqd:inspireId>		
-<aqd:pollutant xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{zone.cp_number}"/>
-<aqd:assessmentThreshold>		
-<aqd:AssessmentThreshold>		
-<aqd:environmentalObjective>		
-<aqd:EnvironmentalObjective>		
-<aqd:objectiveType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/objectivetype/{zone.objective_type}"/>
-<aqd:reportingMetric xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/reportingmetric/{zone.rep_metric}"/>
-<aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
-</aqd:EnvironmentalObjective>		
-</aqd:environmentalObjective>		
-<aqd:exceedanceAttainment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmentthresholdexceedance/{WHATISTHIS:belowLAT}"/>
-<aqd:classificationDate>		
-<gml:TimeInstant gml:id="ARE_T-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}{year}">
-<gml:timePosition>{year}</gml:timePosition>
-</gml:TimeInstant>		
-</aqd:classificationDate>		
-<aqd:classificationReport></aqd:classificationReport>		
-</aqd:AssessmentThreshold>		
-</aqd:assessmentThreshold>		
-<aqd:assessmentMethods>		
-<aqd:AssessmentMethods>		
-<aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/{WHATISTHIS:indicative}"/>
-<aqd:assessmentTypeDescription></aqd:assessmentTypeDescription>
-{sampling_points}		
-</aqd:AssessmentMethods>		
-</aqd:assessmentMethods>		
-<aqd:zone xlink:href="HU.OMSZ.AQ/ZON-{zone.zn_code}"/>
-</aqd:AQD_AssessmentRegime>		
-</gml:featureMember>		
+    <gml:featureMember>
+        <aqd:AQD_AssessmentRegime gml:id="ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
+            <aqd:inspireId>
+                <base:Identifier>
+                    <base:localId>ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
+                    <base:namespace>HU.OMSZ.AQ</base:namespace>
+                    <base:versionId>AQIS1.1</base:versionId>
+                </base:Identifier>
+            </aqd:inspireId>
+            <aqd:pollutant xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{zone.cp_number}"/>
+            <aqd:assessmentThreshold>
+                <aqd:AssessmentThreshold>
+                    <aqd:environmentalObjective>
+                        <aqd:EnvironmentalObjective>
+                            <aqd:objectiveType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/objectivetype/{zone.objective_type}"/>
+                            <aqd:reportingMetric xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/reportingmetric/{zone.rep_metric}"/>
+                            <aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
+                        </aqd:EnvironmentalObjective>
+                    </aqd:environmentalObjective>
+                    <aqd:exceedanceAttainment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmentthresholdexceedance/{WHATISTHIS:belowLAT}"/>
+                    <aqd:classificationDate>
+                        <gml:TimeInstant gml:id="ARE_T-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}{year}">
+                            <gml:timePosition>{year}</gml:timePosition>
+                        </gml:TimeInstant>
+                    </aqd:classificationDate>
+                    <aqd:classificationReport></aqd:classificationReport>
+                </aqd:AssessmentThreshold>
+            </aqd:assessmentThreshold>
+            <aqd:assessmentMethods>
+                <aqd:AssessmentMethods>
+                    <aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/{WHATISTHIS:indicative}"/>
+                    <aqd:assessmentTypeDescription></aqd:assessmentTypeDescription>
+                    {sampling_points}
+                </aqd:AssessmentMethods>
+            </aqd:assessmentMethods>
+            <aqd:zone xlink:href="HU.OMSZ.AQ/ZON-{zone.zn_code}"/>
+        </aqd:AQD_AssessmentRegime>
+    </gml:featureMember>
