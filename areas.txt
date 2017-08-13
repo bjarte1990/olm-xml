@@ -17,7 +17,7 @@
                             <aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
                         </aqd:EnvironmentalObjective>
                     </aqd:environmentalObjective>
-                    <aqd:exceedanceAttainment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmentthresholdexceedance/{WHATISTHIS:belowLAT}"/>
+                    <aqd:exceedanceAttainment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmentthresholdexceedance/{zone.assessment_threshold_exceedance}"/>
                     <aqd:classificationDate>
                         <gml:TimeInstant gml:id="ARE_T-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}{year}">
                             <gml:timePosition>{year}</gml:timePosition>
@@ -28,7 +28,7 @@
             </aqd:assessmentThreshold>
             <aqd:assessmentMethods>
                 <aqd:AssessmentMethods>
-                    <aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/{WHATISTHIS:indicative}"/>
+                    <aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/{zone.assessment_method_type}"/>
                     <aqd:assessmentTypeDescription></aqd:assessmentTypeDescription>
                     {sampling_points}
                 </aqd:AssessmentMethods>

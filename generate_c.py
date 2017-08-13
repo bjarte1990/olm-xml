@@ -35,19 +35,27 @@ GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
                         "WHERE ra.nn_code_iso2 = 'hu' AND ra.ac_code_comb = {code_comb}"
 
 # todo filtering to H is good?
-ZONE_METRIC_SQL = "SELECT " \
-                  "p.nn_code_iso2, p.zn_code, p.cp_number, eo.pt_poll_code, " \
-                  "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code  " \
-                  "FROM (AQD_zone_pollutant p INNER JOIN AQD_environmental_objective eo " \
-                  "ON p.cp_number = eo.cp_number) " \
-                  "INNER JOIN AQD_sampling_point_for_compliance sp " \
-                  "ON p.cp_number = sp.cp_number AND p.zn_code = sp.zn_code " \
-                  "WHERE p.nn_code_iso2 = 'hu' " \
-                  "AND eo.objective_type NOT IN ('lvmot', 'eco', 'ert') " \
-                  "AND eo.pt_code = 'H' " \
-                  "GROUP BY p.nn_code_iso2, p.zn_code, p.cp_number, " \
-                  "eo.pt_poll_code, " \
-                  "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code"
+# ZONE_METRIC_SQL = "SELECT " \
+#                   "p.nn_code_iso2, p.zn_code, p.cp_number, eo.comp_id, eo.pt_poll_code, " \
+#                   "eo.env_poll_code, eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code  " \
+#                   "FROM (AQD_zone_pollutant p INNER JOIN AQD_environmental_objective eo " \
+#                   "ON p.cp_number = eo.cp_number) " \
+#                   "INNER JOIN AQD_sampling_point_for_compliance sp " \
+#                   "ON p.cp_number = sp.cp_number AND p.zn_code = sp.zn_code " \
+#                   "WHERE p.nn_code_iso2 = 'hu' " \
+#                   "AND eo.objective_type NOT IN ('lvmot', 'eco', 'ert') " \
+#                   "AND eo.pt_code = 'H' " \
+#                   "GROUP BY p.nn_code_iso2, p.zn_code, p.cp_number, " \
+#                   "eo.comp_id, eo.pt_poll_code, eo.env_poll_code," \
+#                   "eo.objective_type, eo.rep_metric, eo.pt_code, sp.sn_code"
+
+ZONE_METRIC_SQL = "SELECT p.zn_code, p.cp_number, eo.objective_type, eo.rep_metric, " \
+                  "eo.pt_code, eo.env_poll_code FROM " \
+                  "AQD_zone_pollutant p INNER JOIN AQD_environmental_objective eo " \
+                  "ON p.cp_number = eo.cp_number AND p.pt_code = eo.pt_code " \
+                  "WHERE p.nn_code_iso2 = 'HU' AND eo.objective_type NOT IN " \
+                  "('LVMOT', 'ECO', 'ERT') " \
+                  "ORDER BY p.zn_code, eo.env_poll_code"
 
 
 SAMPLING_POINT_QUERY = "SELECT sp.sn_code, sp.zn_code, sp.cp_number, sp.mc_group_code, s.sn_eu_code " \
@@ -176,7 +184,6 @@ def create_dfs(con):
                                                               'objective_type',
                                                               'rep_metric', ])
     sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
-
     return responsible_df,authorities_df,zone_metrics_df,sampling_points_df
 
 
@@ -190,9 +197,22 @@ def generate_string_from_dfs(responsible_df,authorities_df,zone_metrics_df,
     return responsible_string, authorities_string, zones_string
 
 
+def evaluate_zones(zone_metrics_df):
+    eval_file_name = 'AssessmentRegimes_HU-003_v3.xls'
+    evaluation_df = pd.read_excel(eval_file_name)
+    evaluation_df = evaluation_df.dropna(subset=['assessment_method_type',
+                                                 'assessment_threshold_exceedance'])
+    return zone_metrics_df.merge(evaluation_df, left_on=['zn_code', 'env_poll_code'],
+                                right_on=['zone_code', 'ENV_pollutant'])
+
+
 def generate_xml_structure(con, structure_file_name):
     # define df-s by querying database
     responsible_df, authorities_df, zone_metrics_df, sampling_points_df = create_dfs(con)
+
+    #todo modify zone__metrics_df
+    zone_metrics_df = evaluate_zones(zone_metrics_df)
+    print(zone_metrics_df)
 
     # create xml parts using df-s
     responsible_string, authorities_string, zones_string = generate_string_from_dfs(
