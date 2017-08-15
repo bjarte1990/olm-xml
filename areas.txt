@@ -29,8 +29,7 @@
             <aqd:assessmentMethods>
                 <aqd:AssessmentMethods>
                     <aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/{zone.assessment_method_type}"/>
-                    <aqd:assessmentTypeDescription></aqd:assessmentTypeDescription>
-                    {sampling_points}
+                    <aqd:assessmentTypeDescription></aqd:assessmentTypeDescription>{sampling_points}
                 </aqd:AssessmentMethods>
             </aqd:assessmentMethods>
             <aqd:zone xlink:href="HU.OMSZ.AQ/ZON-{zone.zn_code}"/>

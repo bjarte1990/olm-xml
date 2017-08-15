@@ -1,0 +1,44 @@
+    <gml:featureMember>
+        <aqd:AQD_AssessmentRegime gml:id="ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
+            <aqd:inspireId>
+                <base:Identifier>
+                    <base:localId>ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
+                    <base:namespace>HU.OMSZ.AQ</base:namespace>
+                    <base:versionId>AQIS1.1</base:versionId>
+                </base:Identifier>
+            </aqd:inspireId>
+            <aqd:pollutant xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{zone.cp_number}"/>
+            <aqd:environmentalObjective>
+                <aqd:EnvironmentalObjective>
+                            <aqd:objectiveType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/objectivetype/{zone.objective_type}"/>
+                            <aqd:reportingMetric xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/reportingmetric/{zone.rep_metric}"/>
+                            <aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
+                </aqd:EnvironmentalObjective>
+            </aqd:environmentalObjective>
+            <aqd:exceedanceDescriptionFinal>
+				<aqd:ExceedanceDescription>
+					<aqd:exceedance>true</aqd:exceedance>
+                    {exc.number_exceedence}{exc.numerical_exceedence}
+                    <aqd:exceedanceArea>
+                        <aqd:ExceedanceArea>
+                            <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/suburban"/>
+                            <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/urban"/>
+                            <aqd:spatialExtent/>
+                            {exc.surface_area}
+                            {exc.road_length}
+                            {exc.stations}
+                            <aqd:administrativeUnit/>
+                        </aqd:ExceedanceArea>
+                    </aqd:exceedanceArea>
+                    <aqd:exceedanceExposure>
+                        <aqd:ExceedanceExposure>
+                            {exc.population}
+                        </aqd:ExceedanceExposure>
+                    </aqd:exceedanceExposure>
+                    {exc.reason}
+                    {exc.comment}
+				</aqd:ExceedanceDescription>
+			</aqd:exceedanceDescriptionFinal>
+            <aqd:zone xlink:href="HU.OMSZ.AQ/ZON-{zone.zn_code}"/>
+        </aqd:AQD_AssessmentRegime>
+    </gml:featureMember>

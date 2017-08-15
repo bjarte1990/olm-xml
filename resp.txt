@@ -1,10 +1,10 @@
     <gml:featureMember>
-        <aqd:AQD_ReportingHeader gml:id="REP_D-HU_OMSZ_20161006_B">
+        <aqd:AQD_ReportingHeader gml:id="REP_D-{localid}_{part}">
             <aqd:change>true</aqd:change>
             <aqd:changeDescription>HU-2015</aqd:changeDescription>
             <aqd:inspireId>
                 <base:Identifier>
-                    <base:localId>HU_OMSZ_20161006</base:localId>
+                    <base:localId>{localid}</base:localId>
                     <base:namespace>HU.OMSZ.AQ</base:namespace>
                     <base:versionId>AQIS1.1</base:versionId>
                 </base:Identifier>

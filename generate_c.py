@@ -4,6 +4,8 @@ from generator import *
 
 NAMESPACE = "HU.OMSZ.AQ"
 YEAR = "2015"
+LOCALID = "HU_OMSZ_20161017"
+PART = "C"
 
 CODE_COMB = 3
 
@@ -19,7 +21,7 @@ CMC = 64 #cooperationMSCommission
 AREAS_STRING = '<aqd:content xlink:href="{namespace}/ARE-{zn_code}_{cp_number}_' \
                '{objective_type}_{rep_metric}_{year}"/>'
 
-SAMPLING_POINTS_STRING = '<aqd:samplingPointAssessmentMetadata ' \
+SAMPLING_POINTS_STRING = '\n\t\t\t\t\t<aqd:samplingPointAssessmentMetadata ' \
                          'xlink:href="{namespace}/' \
                          'SPO-{sn_eu_code}_{cp_number}_{mc_group_code}"/>'
 
@@ -114,6 +116,9 @@ def create_authorities(authorities_df):
 # todo not nice, have to make a common solution for B and C
 def create_responsible_part(responsible_df, zone_metrics_df):
     structure = read_structure('resp.txt')
+    # change basics
+    structure = re.sub('\{localid\}', LOCALID, structure)
+    structure = re.sub('\{part\}', PART, structure)
     resp_to_replace = get_fields_to_replace(structure, prefix='resp')
 
     responsible_string = ''
@@ -134,7 +139,7 @@ def generate_sampling_points(sampling_points_df):
 
     pollutants_string = ''
     for index, row in sampling_points_df.iterrows():
-        pollutants_string += sub_all(poll_to_replace, row, structure) + '\n'
+        pollutants_string += sub_all(poll_to_replace, row, structure)
 
     return pollutants_string.rstrip()
 
@@ -232,7 +237,7 @@ def main(drv, mdb):
     xml = generate_xml_structure(con, 'header_c.txt')
 
     save_xml(xml, filename='C.xml')
-
+    print('C generation finished')
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])

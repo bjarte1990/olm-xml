@@ -5,6 +5,9 @@ from generator import *
 # variables
 NAMESPACE = 'HU.OMSZ.AQ'
 CODE_COMB = 3
+LOCALID = "HU_OMSZ_20161017"
+PART = "B"
+
 ZONE_STRING = '<aqd:content xlink:href="' + NAMESPACE + '/{zone_name}"/>'
 
 GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
@@ -31,6 +34,9 @@ def get_zone_list(zones_df):
 
 def create_responsible_part(responsible_df, zones_df):
     structure = read_structure('resp.txt')
+    # change basics
+    structure = re.sub('\{localid\}', LOCALID, structure)
+    structure = re.sub('\{part\}', PART, structure)
     resp_to_replace = get_fields_to_replace(structure, prefix='resp')
 
     responsible_string = ''
