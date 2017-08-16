@@ -148,7 +148,6 @@ def create_areas(zone_metrics_df, sampling_points_df):
     structure = read_structure('areas.txt')
     areas_to_replace = get_fields_to_replace(structure, prefix='zone')
     #print(areas_to_replace)
-    #todo deal with WHATISTHIS
 
     areas_string = ''
     for index, row in zone_metrics_df.iterrows():

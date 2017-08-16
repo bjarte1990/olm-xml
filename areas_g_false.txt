@@ -1,5 +1,5 @@
     <gml:featureMember>
-        <aqd:AQD_AssessmentRegime gml:id="ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
+        <aqd:AQD_Attainment gml:id="ATT-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
             <aqd:inspireId>
                 <base:Identifier>
                     <base:localId>ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
@@ -10,9 +10,9 @@
             <aqd:pollutant xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{zone.cp_number}"/>
             <aqd:environmentalObjective>
                 <aqd:EnvironmentalObjective>
-                            <aqd:objectiveType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/objectivetype/{zone.objective_type}"/>
-                            <aqd:reportingMetric xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/reportingmetric/{zone.rep_metric}"/>
-                            <aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
+                    <aqd:objectiveType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/objectivetype/{zone.objective_type}"/>
+                    <aqd:reportingMetric xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/reportingmetric/{zone.rep_metric}"/>
+                    <aqd:protectionTarget xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/protectiontarget/{zone.pt_code}"/>
                 </aqd:EnvironmentalObjective>
             </aqd:environmentalObjective>
             <aqd:exceedanceDescriptionFinal>
@@ -22,5 +22,6 @@
 				</aqd:ExceedanceDescription>
 			</aqd:exceedanceDescriptionFinal>
             <aqd:zone xlink:href="HU.OMSZ.AQ/ZON-{zone.zn_code}"/>
-        </aqd:AQD_AssessmentRegime>
+            <aqd:assessment xlink:href="HU.OMSZ.AQ/ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}"/>
+        </aqd:AQD_Attainment>
     </gml:featureMember>
