@@ -4,6 +4,7 @@ import re
 import math
 
 NAMESPACE = 'HU.OMSZ.AQ'
+STRUCTURE_PATH = 'structures/d/'
 
 CONTENT_STRING = '<aqd:content xlink:href="' + NAMESPACE + '/{name}"/>\n'
 
@@ -59,7 +60,7 @@ def generate_process_feature(p):
 
 
 def generate_network_feature(n):
-    structure = read_structure('network.txt')
+    structure = read_structure(STRUCTURE_PATH + 'network.txt')
     structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = re.sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
     structure = re.sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
@@ -71,7 +72,7 @@ def generate_network_feature(n):
 
 
 def generate_station_feature(s):
-    structure = read_structure('station.txt')
+    structure = read_structure(STRUCTURE_PATH + 'station.txt')
     structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = re.sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
                        str(s['station_start_date'])[6:], structure)
@@ -82,7 +83,7 @@ def generate_station_feature(s):
 
 
 def generate_sampling_point_feature(sp):
-    structure = read_structure('sampling_point.txt')
+    structure = read_structure(STRUCTURE_PATH + 'sampling_point.txt')
     #stored as double
     if math.isnan(sp['oc_id']):
         sp['oc_id'] = int(sp['oc_id_new'])
@@ -104,7 +105,7 @@ def generate_sampling_point_feature(sp):
 
 
 def generate_sampling_point_f_feature(spf):
-    structure = read_structure('sampling_point_f.txt')
+    structure = read_structure(STRUCTURE_PATH + 'sampling_point_f.txt')
     # stored as double
     if math.isnan(spf['oc_id']):
         spf['oc_id'] = int(spf['oc_id_new'])
