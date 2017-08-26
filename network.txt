@@ -1,0 +1,60 @@
+	<gml:featureMember>
+		<aqd:AQD_Network gml:id="{network.network_code}" >
+			<ef:inspireId>
+				<base:Identifier>
+					<base:localId>{network.network_code}</base:localId>
+					<base:namespace>{NAMESPACE}</base:namespace>
+					<base:versionId>AQIS1.1</base:versionId>
+				</base:Identifier>
+			</ef:inspireId>
+			<ef:name>"{network.network_name}"</ef:name>
+			<ef:mediaMonitored xlink:href="http://inspire.ec.europa.eu/codeList/MediaValue/air"/>
+			<ef:responsibleParty>
+				<base2:RelatedParty>
+					<base2:individualName>
+						<gmd:LocalisedCharacterString>{network.manager_person_last_name}{network.manager_person_first_name}</gmd:LocalisedCharacterString>
+					</base2:individualName>
+					<base2:organisationName>
+						<gmd:LocalisedCharacterString>{network.manager_organization_name}</gmd:LocalisedCharacterString>
+					</base2:organisationName>
+					<base2:contact>
+						<base2:Contact>
+							<base2:address>
+								<ad:AddressRepresentation>
+									<ad:adminUnit>
+										<gn:GeographicalName>
+											<gn:language nilReason="missing" xsi:nil="true"/>
+											<gn:nativeness nilReason="missing" xsi:nil="true"/>
+											<gn:nameStatus nilReason="missing" xsi:nil="true"/>
+											<gn:sourceOfName nilReason="missing" xsi:nil="true"/>
+											<gn:pronunciation nilReason="missing" xsi:nil="true"/>
+											<gn:spelling>
+												<gn:SpellingOfName>
+													<gn:text>{address1}</gn:text>
+													<gn:script nilReason="missing" xsi:nil="true"/>
+												</gn:SpellingOfName>
+											</gn:spelling>
+										</gn:GeographicalName>
+									</ad:adminUnit>
+									<ad:locatorDesignator>{address2}</ad:locatorDesignator>
+								</ad:AddressRepresentation>
+							</base2:address>
+							<base2:electronicMailAddress>{network.manager_person_email_address}</base2:electronicMailAddress>
+							<base2:telephoneVoice>{network.manager_organization_phone_number}</base2:telephoneVoice>
+							<base2:website>{network.manager_organization_website_address}</base2:website>
+						</base2:Contact>
+					</base2:contact>
+					<base2:role/>
+				</base2:RelatedParty>
+			</ef:responsibleParty>
+			<ef:organisationLevel/>
+			<aqd:networkType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/networktype/{network.network_type}"/>
+			<aqd:operationActivityPeriod>
+				<gml:TimePeriod gml:id="NET_T-NET-{network.network_code}" >
+					<gml:beginPosition>1973-01-01T00:00:00+01:00</gml:beginPosition>
+					<gml:endPosition indeterminatePosition="unknown"/>
+				</gml:TimePeriod>
+			</aqd:operationActivityPeriod>
+			<aqd:aggregationTimeZone xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/timezone/UTC+01"/>
+		</aqd:AQD_Network>
+	</gml:featureMember>

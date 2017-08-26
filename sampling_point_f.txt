@@ -1,0 +1,18 @@
+	<gml:featureMember>
+		<aqd:AQD_Sample gml:id="SPO_F-{spf.station_eoi_code}_{component_code}_{spf.spo_id}_{spf.oc_id}" >
+			<sam:sampledFeature xlink:href="HU.OMSZ.AQ/SPO-{spf.station_eoi_code}_{component_code}_{spf.spo_id}"/>
+			<sams:shape>
+				<gml:Point srsName="urn:ogc:def:crs:EPSG::4258" gml:id="SAM_G-{spf.station_eoi_code}_{component_code}_{spf.spo_id}_{spf.oc_id}" >
+					<gml:pos srsDimension="2">{spf.station_latitude_d} {spf.station_longitude_d}</gml:pos>
+				</gml:Point>
+			</sams:shape>
+			<aqd:inspireId>
+				<base:Identifier>
+					<base:localId>SPO_F-{spf.station_eoi_code}_{component_code}_{spf.spo_id}_{spf.oc_id}</base:localId>
+					<base:namespace>{NAMESPACE}</base:namespace>
+					<base:versionId>AQIS1.1</base:versionId>
+				</base:Identifier>
+			</aqd:inspireId>
+			<aqd:inletHeight uom="http://dd.eionet.europa.eu/vocabulary/uom/length/m">{spf.height_sampling_point}</aqd:inletHeight>
+		</aqd:AQD_Sample>
+	</gml:featureMember>

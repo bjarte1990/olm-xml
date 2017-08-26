@@ -1,0 +1,18 @@
+        <aqd:samplingMethod>
+            <aqd:SamplingMethod>
+                <aqd:samplingMethod xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/samplingmethod/{method}"/>
+                <aqd:otherSamplingMethod>"{other_method}"</aqd:otherSamplingMethod>
+            </aqd:SamplingMethod>
+        </aqd:samplingMethod>
+        <aqd:analyticalTechnique>
+            <aqd:AnalyticalTechnique>
+                <aqd:analyticalTechnique xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/analyticaltechnique/{process.techniquecode}"/>
+                {other_first_tag}
+            </aqd:AnalyticalTechnique>
+        </aqd:analyticalTechnique>
+        <aqd:samplingEquipment>
+            <aqd:SamplingEquipment>
+                <aqd:equipment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/samplingequipment/{process.equipmentcode}"/>
+                {other_equipment_part}
+            </aqd:SamplingEquipment>
+        </aqd:samplingEquipment>

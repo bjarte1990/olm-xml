@@ -1,0 +1,12 @@
+        <aqd:measurementMethod>
+            <aqd:MeasurementMethod>
+                <aqd:measurementMethod xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/measurementmethod/{process.techniquecode}"/>
+                {other_first_tag}
+            </aqd:MeasurementMethod>
+        </aqd:measurementMethod>
+        <aqd:measurementEquipment>
+            <aqd:MeasurementEquipment>
+                <aqd:equipment xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/measurementequipment/{process.equipmentcode}"/>
+                {other_equipment_part}
+            </aqd:MeasurementEquipment>
+        </aqd:measurementEquipment>

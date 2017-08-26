@@ -1,0 +1,54 @@
+	<gml:featureMember>
+		<aqd:AQD_SamplingPoint gml:id="SPO-{sp.station_eoi_code}_{component_code}_{sp.spo_id}">
+			<ef:inspireId>
+				<base:Identifier>
+					<base:localId>SPO-{sp.station_eoi_code}_{component_code}_{sp.spo_id}</base:localId>
+					<base:namespace>{NAMESPACE}</base:namespace>
+					<base:versionId>AQIS1.1</base:versionId>
+				</base:Identifier>
+			</ef:inspireId>
+			<ef:mediaMonitored xlink:href="http://inspire.ec.europa.eu/codeList/MediaValue/air"/>
+			<ef:geometry>
+				<gml:Point srsName="urn:ogc:def:crs:EPSG::4258" gml:id="SPO_G-{sp.station_eoi_code}_{component_code}_{sp.spo_id}" >
+					<gml:pos srsDimension="2">{sp.station_latitude_d} {sp.station_longitude_d}</gml:pos>
+				</gml:Point>
+			</ef:geometry>
+			<ef:observingCapability>
+				<ef:ObservingCapability gml:id="SPO_OC-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}" >
+					<ef:observingTime>
+						<gml:TimePeriod gml:id="SPO_OC_T-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}" >
+							<gml:beginPosition>{spo_start_date}T00:00:00+01:00</gml:beginPosition>
+							<gml:endPosition indeterminatePosition="unknown"/>
+						</gml:TimePeriod>
+					</ef:observingTime>
+					<ef:processType xlink:href="http://inspire.ec.europa.eu/codeList/ProcessTypeValue/process"/>
+					<ef:resultNature xlink:href="http://inspire.ec.europa.eu/codeList/ResultNatureValue/primary"/>
+					<ef:procedure xlink:href="HU.OMSZ.AQ/{sp.process_id}" />
+					<ef:featureOfInterest xlink:href="HU.OMSZ.AQ/SPO_F-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}"/>
+					<ef:observedProperty xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/1"/>
+				</ef:ObservingCapability>
+			</ef:observingCapability>
+			<ef:broader xlink:href="HU.OMSZ.AQ/STA-{sp.station_eoi_code}"/>
+			<ef:measurementRegime xlink:href="http://inspire.ec.europa.eu/codeList/MeasurementRegimeValue/continuousDataCollection"/>
+			<ef:mobile>false</ef:mobile>
+			<ef:operationalActivityPeriod>
+				<ef:OperationalActivityPeriod gml:id="SPO_A-{sp.station_eoi_code}_{component_code}_{sp.spo_id}" >
+					<ef:activityTime>
+						<gml:TimePeriod gml:id="SPO_T-{sp.station_eoi_code}_{component_code}_{sp.spo_id}" >
+							<gml:beginPosition>{spo_start_date}T00:00:00+01:00</gml:beginPosition>
+							<gml:endPosition indeterminatePosition="unknown"/>
+						</gml:TimePeriod>
+					</ef:activityTime>
+				</ef:OperationalActivityPeriod>
+			</ef:operationalActivityPeriod>
+			<ef:belongsTo xlink:href="HU.OMSZ.AQ/NET-{sp.network_code}"/>
+			<aqd:assessmentType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/assessmenttype/fixed"/>
+			<aqd:relevantEmissions>
+				<aqd:RelevantEmissions>
+					<aqd:mainEmissionSources xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/emissionsource/4"/>
+					<aqd:stationClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/stationclassification/{sp.type_of_station}"/>
+				</aqd:RelevantEmissions>
+			</aqd:relevantEmissions>
+			<aqd:usedAQD>false</aqd:usedAQD>
+		</aqd:AQD_SamplingPoint>
+	</gml:featureMember>

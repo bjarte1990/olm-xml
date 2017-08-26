@@ -1,0 +1,38 @@
+	<gml:featureMember>
+		<aqd:AQD_Station gml:id="STA-{station.station_eoi_code}" >
+			<ef:inspireId>
+				<base:Identifier>
+					<base:localId>STA-{station.station_eoi_code}</base:localId>
+					<base:namespace>{NAMESPACE}</base:namespace>
+					<base:versionId>AQIS1.1</base:versionId>
+				</base:Identifier>
+			</ef:inspireId>
+			<ef:name>"{station.station_name}"</ef:name>
+			<ef:mediaMonitored xlink:href="http://inspire.ec.europa.eu/codeList/MediaValue/air"/>
+			<ef:geometry>
+				<gml:Point srsName="urn:ogc:def:crs:EPSG::4258" gml:id="STA_G-STA-{station.station_eoi_code}" >
+					<gml:pos srsDimension="2">{station.station_latitude_d} {station.station_longitude_d}</gml:pos>
+				</gml:Point>
+			</ef:geometry>
+			<ef:measurementRegime xlink:href="http://inspire.ec.europa.eu/codeList/MeasurementRegimeValue/continuousDataCollection"/>
+			<ef:mobile>false</ef:mobile>
+			<ef:operationalActivityPeriod>
+				<ef:OperationalActivityPeriod gml:id="STA_P-STA-{station.station_eoi_code}" >
+					<ef:activityTime>
+						<gml:TimePeriod gml:id="STA_T-STA-{station.station_eoi_code}" >
+							<gml:beginPosition>{date}T00:00:00+01:00</gml:beginPosition>
+							<gml:endPosition indeterminatePosition="unknown"/>
+						</gml:TimePeriod>
+					</ef:activityTime>
+				</ef:OperationalActivityPeriod>
+			</ef:operationalActivityPeriod>
+			<ef:belongsTo xlink:href = "HU.OMSZ.AQ/NET-{station.network_code}"/>
+			<aqd:natlStationCode>{station.station_local_code}</aqd:natlStationCode>
+			<aqd:municipality>{station.station_lau_name2}</aqd:municipality>
+			<aqd:EUStationCode>{station.station_airbase_code}</aqd:EUStationCode>
+			<aqd:meteoParams xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/meteoparameter/73"/>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METEOPARAMS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			<aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/{station.station_type_of_area}"/>
+			<aqd:altitude uom="m">{station.station_altitude}</aqd:altitude>
+		</aqd:AQD_Station>
+	</gml:featureMember>

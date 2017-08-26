@@ -1,0 +1,30 @@
+<gml:featureMember>
+    <aqd:AQD_SamplingPointProcess gml:id="{process.process_id}">
+        <ompr:inspireId>
+            <base:Identifier>
+                <base:localId>{process.process_id}</base:localId>
+                <base:namespace>{NAMESPACE}</base:namespace>
+                <base:versionId>AQIS1.1</base:versionId>
+            </base:Identifier>
+        </ompr:inspireId>
+        <ompr:type nilReason="missing" xsi:nil="true"/>
+        <ompr:responsibleParty nilReason="reported in Header" xsi:nil="true"/>
+        <aqd:measurementType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/measurementtype/{process.method_type}"/>
+{sampling_method}
+        <aqd:dataQuality>
+            <aqd:DataQuality/>
+        </aqd:dataQuality>
+        <aqd:duration>
+            <aqd:TimeReferences>
+                <aqd:unit xlink:href="http://dd.eionet.europa.eu/vocabulary/uom/time/{process.duration_unit}"/>
+                <aqd:numUnits>{process.duration}</aqd:numUnits>
+            </aqd:TimeReferences>
+        </aqd:duration>
+        <aqd:cadence>
+            <aqd:TimeReferences>
+                <aqd:unit xlink:href="http://dd.eionet.europa.eu/vocabulary/uom/time/{process.cadence_unit}"/>
+                <aqd:numUnits>{process.cadence}</aqd:numUnits>
+            </aqd:TimeReferences>
+        </aqd:cadence>
+    </aqd:AQD_SamplingPointProcess>
+</gml:featureMember>
