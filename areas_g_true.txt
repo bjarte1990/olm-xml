@@ -20,10 +20,7 @@
 					<aqd:exceedance>true</aqd:exceedance>
                     {exc.number_exceedence}{exc.numerical_exceedence}
                     <aqd:exceedanceArea>
-                        <aqd:ExceedanceArea>
-                            <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/suburban"/>
-                            <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/urban"/>
-                            <aqd:spatialExtent/>
+                        <aqd:ExceedanceArea>{area_classification}                            <aqd:spatialExtent/>
                             {exc.surface_area}
                             {exc.road_length}
                             {exc.stations}

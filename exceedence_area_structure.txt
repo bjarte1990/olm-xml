@@ -1,0 +1,11 @@
+<aqd:exceedanceArea>
+    <aqd:ExceedanceArea>
+        <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/suburban"/>
+        <aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/urban"/>
+        <aqd:spatialExtent/>
+        {exc.surface_area}
+        {exc.road_length}
+        {exc.stations}
+        <aqd:administrativeUnit/>
+    </aqd:ExceedanceArea>
+</aqd:exceedanceArea>

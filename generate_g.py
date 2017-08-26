@@ -1,4 +1,3 @@
-from generator import *
 from generate_c import *
 import pandas as pd
 
@@ -96,15 +95,21 @@ def parse_info(row, current_structure):
 
 def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
     eval_file = 'Attainments_HU-001_exportv3.xls'
+    station_file = 'AQIS_HU_Station-001_mod.xls'
     false_structure = read_structure('areas_g_false.txt')
     true_structure = read_structure('areas_g_true.txt')
 
     evaluation_df = pd.read_excel(eval_file)
+    station_df = pd.read_excel(station_file)[['station_eoi_code', 'station_type_of_area']]
 
     zone_evaluation_df = zone_metrics_df.merge(evaluation_df,
                                                left_on=['zn_code', 'env_poll_code'],
                                                right_on=['zone_code', 'ENV_pollutant'])
 
+    # zone_evaluation_df = zone_evaluation_df.merge(station_df, left_on=['zn_code'],
+    #                                               right_on=['station_eoi_code'])
+    #
+    # print(zone_evaluation_df)
     zone_evaluation_string = ''
     for index, row in zone_evaluation_df.iterrows():
         if row['attainment'] == 'Y':
@@ -131,13 +136,28 @@ def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
             sampling_points_df['sn_code'].isin(sn_codes)]
         actual_sampling_points = actual_sampling_points.loc[
             (actual_sampling_points['cp_number'] == row['cp_number'])]
+
+        actual_sampling_points = actual_sampling_points.merge(station_df,
+                                                              left_on='sn_eu_code',
+                                                              right_on='station_eoi_code')
+        station_class_string = '\n'
+        for station_type in set(actual_sampling_points['station_type_of_area']):
+            station_class_string += '<aqd:areaClassification xlink:href=' \
+                                    '"http://dd.eionet.europa.eu/vocabulary/aq/' \
+                                    'areaclassification/{t}"/>\n'.format(t=station_type)
+        zone_evaluation_string = re.sub('\{area_classification\}', station_class_string,
+                                        zone_evaluation_string)
+
         zone_evaluation_string = re.sub('\{exc\.stations\}',
                                         generate_sampling_points_for_g(actual_sampling_points),
                                         zone_evaluation_string)
+        # station_df[station_df['station_eoi_code'] == 'HU0017A'][
+        #     'station_type_of_area'].item()
 
     zone_evaluation_string = re.sub('\{year\}', YEAR, zone_evaluation_string)
     #todo namespaces
     return zone_evaluation_string
+
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)

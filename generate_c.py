@@ -60,7 +60,8 @@ ZONE_METRIC_SQL = "SELECT p.zn_code, p.cp_number, eo.objective_type, eo.rep_metr
                   "ORDER BY p.zn_code, eo.env_poll_code"
 
 
-SAMPLING_POINT_QUERY = "SELECT sp.sn_code, sp.zn_code, sp.cp_number, sp.mc_group_code, s.sn_eu_code " \
+SAMPLING_POINT_QUERY = "SELECT sp.sn_code, sp.zn_code, sp.cp_number, sp.mc_group_code, " \
+                       "s.sn_eu_code " \
                        "FROM AQD_sampling_point_for_compliance sp INNER JOIN station s " \
                        "ON sp.sn_code = s.sn_code " \
                        "WHERE s.nn_code_iso2 = 'hu'"
@@ -139,15 +140,30 @@ def generate_sampling_points(sampling_points_df):
 
     pollutants_string = ''
     for index, row in sampling_points_df.iterrows():
+        cp_number = ''.join(['0'] * (5 - len(str(row['cp_number'])))) + str(
+            row['cp_number'])
+        structure = re.sub('\{cp_number\}', cp_number, structure)
         pollutants_string += sub_all(poll_to_replace, row, structure)
 
     return pollutants_string.rstrip()
 
 
+def include_modifications(actual_sampling_points, mod_df):
+    final_df = actual_sampling_points
+    for index,row in actual_sampling_points.iterrows():
+        tmp = mod_df[mod_df['station_eoi_code'] == row['sn_eu_code']]
+        tmp = tmp[tmp['component_code'] == row['cp_number']]
+        if tmp['change'].iloc[0] == 'M':
+            final_df = final_df.append(row)
+
+    return final_df.sort_values(['sn_eu_code'])
+
+
 def create_areas(zone_metrics_df, sampling_points_df):
     structure = read_structure('areas.txt')
     areas_to_replace = get_fields_to_replace(structure, prefix='zone')
-    #print(areas_to_replace)
+
+    mod_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
 
     areas_string = ''
     for index, row in zone_metrics_df.iterrows():
@@ -161,15 +177,11 @@ def create_areas(zone_metrics_df, sampling_points_df):
 
         actual_sampling_points = sampling_points_df[
             sampling_points_df['cp_number'] == row['cp_number']]
-        actual_sampling_points = actual_sampling_points.loc[
-             (actual_sampling_points['zn_code'] == row['zn_code'])]
+        actual_sampling_points = actual_sampling_points[
+             actual_sampling_points['zn_code'] == row['zn_code']]
 
-        sn_codes = list(actual_sampling_points['sn_code'].drop_duplicates())
-
-        actual_sampling_points = sampling_points_df[
-            sampling_points_df['sn_code'].isin(sn_codes)]
-        actual_sampling_points = actual_sampling_points.loc[
-            (actual_sampling_points['cp_number'] == row['cp_number'])]
+        # include M
+        actual_sampling_points = include_modifications(actual_sampling_points,mod_df)
 
         areas_string = re.sub('\{sampling_points\}',
                               generate_sampling_points(actual_sampling_points), areas_string)
@@ -216,7 +228,6 @@ def generate_xml_structure(con, structure_file_name):
 
     #todo modify zone__metrics_df
     zone_metrics_df = evaluate_zones(zone_metrics_df)
-    print(zone_metrics_df)
 
     # create xml parts using df-s
     responsible_string, authorities_string, zones_string = generate_string_from_dfs(
