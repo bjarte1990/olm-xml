@@ -1,13 +1,27 @@
-from generator import *
+import sys
 import pandas as pd
 import re
 import math
+
+from generator import *
 
 NAMESPACE = 'HU.OMSZ.AQ'
 STRUCTURE_PATH = 'structures/d/'
 
 CONTENT_STRING = '<aqd:content xlink:href="' + NAMESPACE + '/{name}"/>\n'
 
+NETWORK_QUERY = "SELECT network.nw_name as network_name, " \
+                "organization.og_name as manager_organization_name, " \
+                "network.nw_eu_code as network_code, organization.og_address as address, " \
+                "organization.og_city as city, " \
+                "organization.og_website_address as manager_organization_website_address, " \
+                "organization.og_phone_number as manager_organization_phone_number, " \
+                "network.nw_startdate as network_start_date, network.nw_enddate as network_end_date " \
+                "FROM organization INNER JOIN " \
+                "(network INNER JOIN network_function " \
+                "ON network.nw_code = network_function.nw_code) " \
+                "ON organization.og_code = network_function.og_code " \
+                "WHERE network.nn_code_iso2='HU';"
 
 def format_component_code(component_code):
     return ''.join(['0'] * (5 - len(str(component_code)))) + str(component_code)
@@ -59,11 +73,30 @@ def generate_process_feature(p):
     return structure
 
 
-def generate_network_feature(n):
+def generate_network_feature(n, fromdb=False):
     structure = read_structure(STRUCTURE_PATH + 'network.txt')
     structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
-    structure = re.sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
-    structure = re.sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
+    if fromdb:
+        structure = re.sub('\{address1\}', n['address'], structure)
+        structure = re.sub('\{address2\}', n['city'], structure)
+    else:
+        structure = re.sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
+        structure = re.sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
+        n['network_start_date'] = str(n['network_start_date'])[:4] + '-' + \
+                                  str(n['network_start_date'])[4:6] + '-' + \
+                                  str(n['network_start_date'])[6:]
+        if not isinstance(n['network_end_date'], float):
+            n['network_end_date'] = str(n['network_end_date'])[:4] + '-' + \
+                                      str(n['network_end_date'])[4:6] + '-' + \
+                                      str(n['network_end_date'])[6:]
+
+    if isinstance(n['network_end_date'], float):
+        structure = re.sub('\{endposition\}',
+                           '<gml:endPosition indeterminatePosition="unknown"/>', structure)
+    else:
+        structure = re.sub('\{endposition\}', '<gml:beginPosition>'
+                                              '{network.network_end_date}T00:00:00+01:00'
+                                              '</gml:beginPosition>', structure)
 
     fields = get_fields_to_replace(structure, 'network')
     structure = sub_all(fields, n, structure)
@@ -121,7 +154,7 @@ def generate_sampling_point_f_feature(spf):
     return structure
 
 
-def generate_contents():
+def generate_contents(con):
     content_string = '{processes}\n{networks}\n{stations}\n{sampling_points}'
     process_list = ''
     process_features = ''
@@ -137,8 +170,17 @@ def generate_contents():
     sampling_point_features = ''
     sampling_point_f_features = ''
     process_df = pd.read_excel('AQIS_HU_Process-001_modA.xls')
-    network_df = pd.read_excel('AQIS_HU_Network-001_mod.xls')
-    network_df = network_df.sort_values('network_code')
+
+    network_db_df = pd.read_sql_query(NETWORK_QUERY, con)
+    network_db_df['manager_person_last_name'] = 'unknown'
+    network_db_df['manager_person_first_name'] = 'unknown'
+    network_db_df['manager_person_email_address'] = ''
+    network_db_df['network_type'] = ''
+    network_file_df = pd.read_excel('AQIS_HU_Network-001_mod.xls')
+    network_file_df = network_file_df.sort_values('network_code')
+    # drop those from db df which are in file df
+    network_db_df = network_db_df[~network_db_df['network_code'].isin(network_file_df['network_code'])]
+    print(network_db_df)
 
     station_df = pd.read_excel('AQIS_HU_Station-001_mod.xls')
 
@@ -150,10 +192,18 @@ def generate_contents():
         process_features += generate_process_feature(row)
 
     #todo: generate networks & stations (using db)
-    for index, row in network_df.iterrows():
+    for index, row in network_db_df.iterrows():
+        name = 'NET-' + row['network_code']
+        network_list += CONTENT_STRING.format(name=name)
+        network_features += generate_network_feature(row, fromdb=True)
+
+    for index, row in network_file_df.iterrows():
         name = 'NET-' + row['network_code']
         network_list += CONTENT_STRING.format(name=name)
         network_features += generate_network_feature(row)
+
+    print(network_list)
+    print(network_features)
 
     for index, row in station_df.iterrows():
         name = 'STA-' + row['station_eoi_code']
@@ -172,11 +222,12 @@ def generate_contents():
         sampling_point_features += generate_sampling_point_feature(row)
         sampling_point_f_features += generate_sampling_point_f_feature(row)
 
-    print(sampling_point_f_features)
+    #print(sampling_point_f_features)
 
 
-def main():
-    generate_contents()
+def main(drv, mdb):
+    con = init_connection(drv, mdb)
+    generate_contents(con)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2])

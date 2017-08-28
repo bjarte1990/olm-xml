@@ -51,8 +51,8 @@
 			<aqd:networkType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/networktype/{network.network_type}"/>
 			<aqd:operationActivityPeriod>
 				<gml:TimePeriod gml:id="NET_T-NET-{network.network_code}" >
-					<gml:beginPosition>1973-01-01T00:00:00+01:00</gml:beginPosition>
-					<gml:endPosition indeterminatePosition="unknown"/>
+					<gml:beginPosition>{network.network_start_date}T00:00:00+01:00</gml:beginPosition>
+					{endposition}
 				</gml:TimePeriod>
 			</aqd:operationActivityPeriod>
 			<aqd:aggregationTimeZone xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/timezone/UTC+01"/>
