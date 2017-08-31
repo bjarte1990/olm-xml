@@ -32,7 +32,7 @@
                             {exc.population}
                         </aqd:ExceedanceExposure>
                     </aqd:exceedanceExposure>
-                    {exc.reason}
+{exc.reason}
                     {exc.comment}
 				</aqd:ExceedanceDescription>
 			</aqd:exceedanceDescriptionFinal>

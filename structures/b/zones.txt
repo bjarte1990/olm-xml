@@ -83,6 +83,6 @@
             <aqd:area uom="km2">{zone.zn_area}</aqd:area>
             {pollutants_list}
             <aqd:timeExtensionExemption xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/timeextensiontypes/none"/>
-            <aqd:shapefileLink>http://cdr.eionet.europa.eu/hu/eu/aqd/b/envvn2fa/{zone.zn_code}.shp</aqd:shapefileLink>
+            <aqd:shapefileLink>http://cdr.eionet.europa.eu/hu/eu/aqd/b/envvn2fa/{zone.zn_geometry}</aqd:shapefileLink>
         </aqd:AQD_Zone>
     </gml:featureMember>

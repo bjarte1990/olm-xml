@@ -7,6 +7,7 @@ YEAR = "2015"
 LOCALID = "HU_OMSZ_20161017"
 PART = "C"
 
+STRUCTURE_LOCATION = 'structures/c/{filename}'
 CODE_COMB = 3
 
 #todo authorities code comb
@@ -18,7 +19,7 @@ NWQA = 60 #nationWideQualityAssurance
 CMC = 64 #cooperationMSCommission
 
 
-AREAS_STRING = '<aqd:content xlink:href="{namespace}/ARE-{zn_code}_{cp_number}_' \
+AREAS_STRING = '\t\t\t<aqd:content xlink:href="{namespace}/ARE-{zn_code}_{cp_number}_' \
                '{objective_type}_{rep_metric}_{year}"/>'
 
 SAMPLING_POINTS_STRING = '\n\t\t\t\t\t<aqd:samplingPointAssessmentMetadata ' \
@@ -106,7 +107,7 @@ def change_authorites_in_structure(authority_df, prefix, structure):
 
 
 def create_authorities(authorities_df):
-    structure = read_structure('authorities.txt')
+    structure = read_structure(STRUCTURE_LOCATION.format(filename='authorities.txt'))
     components = get_authorities_components_df(authorities_df)
     for key,value in components.items():
         structure = change_authorites_in_structure(value, key, structure)
@@ -116,10 +117,10 @@ def create_authorities(authorities_df):
 
 # todo not nice, have to make a common solution for B and C
 def create_responsible_part(responsible_df, zone_metrics_df):
-    structure = read_structure('resp.txt')
+    structure = read_structure(STRUCTURE_LOCATION.format(filename='resp.txt'))
     # change basics
-    structure = re.sub('\{localid\}', LOCALID, structure)
-    structure = re.sub('\{part\}', PART, structure)
+    structure = sub('\{localid\}', LOCALID, structure)
+    structure = sub('\{part\}', PART, structure)
     resp_to_replace = get_fields_to_replace(structure, prefix='resp')
 
     responsible_string = ''
@@ -128,21 +129,22 @@ def create_responsible_part(responsible_df, zone_metrics_df):
     for index, row in responsible_df.iterrows():
         actual_person = sub_all(resp_to_replace, row, structure)
         # todo hardcode
-        actual_person = re.sub('\{zone_list\}', get_areas_string(zone_metrics_df), actual_person)
+        actual_person = sub('\{zone_list\}', get_areas_string(zone_metrics_df),
+                            actual_person)
         responsible_string += actual_person
 
     return responsible_string
 
 
 def generate_sampling_points(sampling_points_df):
-    structure = re.sub('\{namespace\}', NAMESPACE, SAMPLING_POINTS_STRING)
+    structure = sub('\{namespace\}', NAMESPACE, SAMPLING_POINTS_STRING)
     poll_to_replace = get_fields_to_replace(structure)
 
     pollutants_string = ''
     for index, row in sampling_points_df.iterrows():
         cp_number = ''.join(['0'] * (5 - len(str(row['cp_number'])))) + str(
             row['cp_number'])
-        structure = re.sub('\{cp_number\}', cp_number, structure)
+        structure = sub('\{cp_number\}', cp_number, structure)
         pollutants_string += sub_all(poll_to_replace, row, structure)
 
     return pollutants_string.rstrip()
@@ -160,7 +162,7 @@ def include_modifications(actual_sampling_points, mod_df):
 
 
 def create_areas(zone_metrics_df, sampling_points_df):
-    structure = read_structure('areas.txt')
+    structure = read_structure(STRUCTURE_LOCATION.format(filename='areas.txt'))
     areas_to_replace = get_fields_to_replace(structure, prefix='zone')
 
     mod_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
@@ -170,7 +172,7 @@ def create_areas(zone_metrics_df, sampling_points_df):
         # todo find better solution
         cp_number = ''.join(['0'] * (5 - len(str(row['cp_number'])))) + str(
             row['cp_number'])
-        actual_area = re.sub('\{ZEROS#cp_number\}', cp_number, structure)
+        actual_area = sub('\{ZEROS#cp_number\}', cp_number, structure)
         actual_area = sub_all(areas_to_replace, row, actual_area)
 
         areas_string += actual_area
@@ -183,10 +185,10 @@ def create_areas(zone_metrics_df, sampling_points_df):
         # include M
         actual_sampling_points = include_modifications(actual_sampling_points,mod_df)
 
-        areas_string = re.sub('\{sampling_points\}',
+        areas_string = sub('\{sampling_points\}',
                               generate_sampling_points(actual_sampling_points), areas_string)
 
-    areas_string = re.sub('\{year\}', YEAR, areas_string)
+    areas_string = sub('\{year\}', YEAR, areas_string)
 
     return areas_string
 
@@ -233,10 +235,10 @@ def generate_xml_structure(con, structure_file_name):
     responsible_string, authorities_string, zones_string = generate_string_from_dfs(
         responsible_df, authorities_df, zone_metrics_df, sampling_points_df)
 
-    xml = read_structure('header_c.txt')
-    xml = re.sub('\{responsible_xml_part\}', responsible_string, xml)
-    xml = re.sub('\{authorities_xml_part\}', authorities_string, xml)
-    xml = re.sub('\{zones_xml_part\}', zones_string, xml)
+    xml = read_structure(structure_file_name)
+    xml = sub('\{responsible_xml_part\}', responsible_string, xml)
+    xml = sub('\{authorities_xml_part\}', authorities_string, xml)
+    xml = sub('\{zones_xml_part\}', zones_string, xml)
 
     return xml
 
@@ -244,10 +246,10 @@ def generate_xml_structure(con, structure_file_name):
 def main(drv, mdb):
     con = init_connection(drv, mdb)
 
-    xml = generate_xml_structure(con, 'header_c.txt')
+    xml = generate_xml_structure(con, STRUCTURE_LOCATION.format(filename='header_c.txt'))
 
     save_xml(xml, filename='C.xml')
     print('C generation finished')
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main("{Microsoft Access Driver (*.mdb, *.accdb)}", "C:\\olm.mdb")

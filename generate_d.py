@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-import re
 import math
 
 from generator import *
@@ -29,43 +28,43 @@ def format_component_code(component_code):
 
 def generate_process_feature(p):
     structure = read_structure('process.txt')
-    structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
+    structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
 
     if p['method_type'] == 'active':
         method_structure = read_structure('sampling_method.txt')
-        method_structure = re.sub('\{method\}', 'other', method_structure)
-        method_structure = re.sub('\{other_method\}', 'UNKNOWN', method_structure)
+        method_structure = sub('\{method\}', 'other', method_structure)
+        method_structure = sub('\{other_method\}', 'UNKNOWN', method_structure)
     else:
         method_structure = read_structure('measurement_method.txt')
-    structure = re.sub('\{sampling_method\}', method_structure, structure)
+    structure = sub('\{sampling_method\}', method_structure, structure)
 
     # fix fields
     other_equipment_string_flag = False
     if isinstance(p['equipmentcode'], int):
-        structure = re.sub('\{process.equipmentcode\}', 'other', structure)
-        structure = re.sub('\{other_equipment_part\}', '<aqd:otherEquipment>"' + p['equipmentname'] +
+        structure = sub('\{process.equipmentcode\}', 'other', structure)
+        structure = sub('\{other_equipment_part\}', '<aqd:otherEquipment>"' + p['equipmentname'] +
                            '"</aqd:otherEquipment>', structure)
         other_equipment_string_flag = True
     else:
-        structure = re.sub('\{other_equipment_part\}', '<aqd:otherEquipment/>', structure)
+        structure = sub('\{other_equipment_part\}', '<aqd:otherEquipment/>', structure)
     if isinstance(p['techniquecode'], int):
-        structure = re.sub('\{process.techniquecode\}', 'other', structure)
+        structure = sub('\{process.techniquecode\}', 'other', structure)
         # active eseten nincs ilyen
         if p['method_type'] == 'active':
-            structure = re.sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique>"' + p['techniquename'] +
+            structure = sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique>"' + p['techniquename'] +
                                '"</aqd:otherAnalyticalTechnique>', structure)
         else:
-            structure = re.sub('\{other_first_tag\}', '<aqd:otherMeasurementMethod>"' + p['techniquename'] +
+            structure = sub('\{other_first_tag\}', '<aqd:otherMeasurementMethod>"' + p['techniquename'] +
                                '"</aqd:otherMeasurementMethod>', structure)
     else:
         if p['method_type'] == 'active':
             if other_equipment_string_flag:
-                structure = re.sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique>"'
+                structure = sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique>"'
                                                           '"</aqd:otherAnalyticalTechnique>', structure)
             else:
-                structure = re.sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique/>', structure)
+                structure = sub('\{other_first_tag\}', '<aqd:otherAnalyticalTechnique/>', structure)
         else:
-            structure = re.sub('\{other_first_tag\}', '<aqd:otherMeasurementMethod/>', structure)
+            structure = sub('\{other_first_tag\}', '<aqd:otherMeasurementMethod/>', structure)
 
     fields = get_fields_to_replace(structure, 'process')
 
@@ -75,13 +74,13 @@ def generate_process_feature(p):
 
 def generate_network_feature(n, fromdb=False):
     structure = read_structure(STRUCTURE_PATH + 'network.txt')
-    structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
+    structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
     if fromdb:
-        structure = re.sub('\{address1\}', n['address'], structure)
-        structure = re.sub('\{address2\}', n['city'], structure)
+        structure = sub('\{address1\}', n['address'], structure)
+        structure = sub('\{address2\}', n['city'], structure)
     else:
-        structure = re.sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
-        structure = re.sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
+        structure = sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
+        structure = sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
         n['network_start_date'] = str(n['network_start_date'])[:4] + '-' + \
                                   str(n['network_start_date'])[4:6] + '-' + \
                                   str(n['network_start_date'])[6:]
@@ -91,10 +90,10 @@ def generate_network_feature(n, fromdb=False):
                                       str(n['network_end_date'])[6:]
 
     if isinstance(n['network_end_date'], float):
-        structure = re.sub('\{endposition\}',
+        structure = sub('\{endposition\}',
                            '<gml:endPosition indeterminatePosition="unknown"/>', structure)
     else:
-        structure = re.sub('\{endposition\}', '<gml:beginPosition>'
+        structure = sub('\{endposition\}', '<gml:beginPosition>'
                                               '{network.network_end_date}T00:00:00+01:00'
                                               '</gml:beginPosition>', structure)
 
@@ -106,8 +105,8 @@ def generate_network_feature(n, fromdb=False):
 
 def generate_station_feature(s):
     structure = read_structure(STRUCTURE_PATH + 'station.txt')
-    structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
-    structure = re.sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
+    structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
+    structure = sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
                        str(s['station_start_date'])[6:], structure)
     fields = get_fields_to_replace(structure, 'station')
     structure = sub_all(fields, s, structure)
@@ -123,10 +122,10 @@ def generate_sampling_point_feature(sp):
     else:
         sp['oc_id'] = int(sp['oc_id'])
     component_code = format_component_code(sp['component_code'])
-    structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
-    structure = re.sub('\{component_code\}', component_code, structure)
+    structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
+    structure = sub('\{component_code\}', component_code, structure)
 
-    structure = re.sub('\{spo_start_date\}', str(sp['spo_startdate'])[:4] + "-" + str(sp['spo_startdate'])[4:6] + '-' +
+    structure = sub('\{spo_start_date\}', str(sp['spo_startdate'])[:4] + "-" + str(sp['spo_startdate'])[4:6] + '-' +
                        str(sp['spo_startdate'])[6:], structure)
     #structure = re.sub('\{oc_start_date\}', str(sp['oc_startdate'])[:4] + "-" + str(sp['oc_startdate'])[4:6] + '-' +
     #                   str(sp['oc_startdate'])[6:], structure)
@@ -145,8 +144,8 @@ def generate_sampling_point_f_feature(spf):
     else:
         spf['oc_id'] = int(spf['oc_id'])
     component_code = format_component_code(spf['component_code'])
-    structure = re.sub('\{NAMESPACE\}', NAMESPACE, structure)
-    structure = re.sub('\{component_code\}', component_code, structure)
+    structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
+    structure = sub('\{component_code\}', component_code, structure)
 
     fields = get_fields_to_replace(structure, 'spf')
     structure = sub_all(fields, spf, structure)
@@ -180,7 +179,6 @@ def generate_contents(con):
     network_file_df = network_file_df.sort_values('network_code')
     # drop those from db df which are in file df
     network_db_df = network_db_df[~network_db_df['network_code'].isin(network_file_df['network_code'])]
-    print(network_db_df)
 
     station_df = pd.read_excel('AQIS_HU_Station-001_mod.xls')
 
@@ -222,7 +220,8 @@ def generate_contents(con):
         sampling_point_features += generate_sampling_point_feature(row)
         sampling_point_f_features += generate_sampling_point_f_feature(row)
 
-    #print(sampling_point_f_features)
+    print(sampling_point_features)
+    print(sampling_point_f_features)
 
 
 def main(drv, mdb):
