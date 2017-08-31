@@ -229,4 +229,4 @@ def main(drv, mdb):
     generate_contents(con)
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main("{Microsoft Access Driver (*.mdb, *.accdb)}", "C:\\olm.mdb")

@@ -236,4 +236,4 @@ def main(drv, mdb):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    main("{Microsoft Access Driver (*.mdb, *.accdb)}", "C:\\olm.mdb")
