@@ -1,0 +1,68 @@
+<gml:featureMember>
+		<om:OM_Observation gml:id="{namespace}-OBP-{station_eoi_code}_{component_code}_{spo_id}_{oc_id}_{year}" >
+			<om:phenomenonTime>
+				<gml:TimePeriod gml:id="OBP_T-{station_eoi_code}_{component_code}_{spo_id}_{oc_id}_{year}" >
+					<gml:beginPosition>{year}-01-01T00:00:00+01:00</gml:beginPosition>
+					<gml:endPosition>{next_year}-01-01T00:00:00+01:00</gml:endPosition>
+				</gml:TimePeriod>
+			</om:phenomenonTime>
+			<om:resultTime>
+				<gml:TimeInstant gml:id="OBP_D-{station_eoi_code}_{component_code}_{spo_id}_{oc_id}_{year}" >
+					<gml:timePosition>{current_time}</gml:timePosition>
+				</gml:TimeInstant>
+			</om:resultTime>
+			<om:procedure xlink:href="{namespace}/SPP-{process_id}" />
+			<om:parameter>
+				<om:NamedValue>
+					<om:name xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/processparameter/AssessmentType"/>
+					<om:value>fixed</om:value>
+				</om:NamedValue>
+			</om:parameter>
+			<om:parameter>
+				<om:NamedValue>
+					<om:name xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/processparameter/SamplingPoint"/>
+					<om:value>HU.OMSZ.AQ/SPO-{station_eoi_code}_{component_code}_{spo_id}</om:value>
+				</om:NamedValue>
+			</om:parameter>
+			<om:observedProperty xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{original_component_code}"/>
+			<om:featureOfInterest xlink:href="HU.OMSZ.AQ/SPO_F-{station_eoi_code}_{component_code}_{spo_id}_{oc_id}"/>
+			<om:result xsi:type = "swe:DataArrayType">
+				<swe:elementCount>
+					<swe:Count>
+						<swe:value>{value_count}</swe:value>
+					</swe:Count>
+				</swe:elementCount>
+				<swe:elementType name = "FixedPrimaryObservations" >
+					<swe:DataRecord>
+						<swe:field name="StartTime">
+							<swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime">
+								<swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+							</swe:Time>
+						</swe:field>
+						<swe:field name="EndTime">
+							<swe:Time definition="http://www.opengis.net/def/property/OGC/0/SamplingTime">
+								<swe:uom xlink:href="http://www.opengis.net/def/uom/ISO-8601/0/Gregorian"/>
+							</swe:Time>
+						</swe:field>
+						<swe:field name="Value">
+							<swe:Quantity definition = "http://dd.eionet.europa.eu/vocabulary/aq/PrimaryObservation/{observation_quantity}">
+								<swe:uom xlink:href="http://dd.eionet.europa.eu/vocabulary/uom/concentration/ug.m-3"/>
+							</swe:Quantity>
+						</swe:field>
+							<swe:field name="Verification">
+								<swe:Category definition="http://dd.eionet.europa.eu/vocabulary/aq/observationverification"/>
+							</swe:field>
+						<swe:field name="Validity">
+							<swe:Category definition="http://dd.eionet.europa.eu/vocabulary/aq/observationvalidity"/>
+						</swe:field>
+					</swe:DataRecord>
+				</swe:elementType>
+				<swe:encoding>
+					<swe:TextEncoding decimalSeparator="." tokenSeparator="," blockSeparator="@@"/>
+				</swe:encoding>
+				<swe:values>
+					{values}
+				</swe:values>
+			</om:result>
+		</om:OM_Observation>
+	</gml:featureMember>

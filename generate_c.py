@@ -1,10 +1,12 @@
 import sys
 import pandas as pd
 from generator import *
+from time import strftime, gmtime
 
 NAMESPACE = "HU.OMSZ.AQ"
-YEAR = "2015"
-LOCALID = "HU_OMSZ_20161017"
+YEAR = "2016"
+DATESTRING = strftime("%Y%m%d", gmtime())
+LOCALID = "HU_OMSZ_" + DATESTRING
 PART = "C"
 
 STRUCTURE_LOCATION = 'structures/c/{filename}'
@@ -175,7 +177,7 @@ def create_areas(zone_metrics_df, sampling_points_df):
         actual_area = sub('\{ZEROS#cp_number\}', cp_number, structure)
         actual_area = sub_all(areas_to_replace, row, actual_area)
 
-        areas_string += actual_area
+        areas_string += actual_area + '\n'
 
         actual_sampling_points = sampling_points_df[
             sampling_points_df['cp_number'] == row['cp_number']]
@@ -183,7 +185,7 @@ def create_areas(zone_metrics_df, sampling_points_df):
              actual_sampling_points['zn_code'] == row['zn_code']]
 
         # include M
-        actual_sampling_points = include_modifications(actual_sampling_points,mod_df)
+        #actual_sampling_points = include_modifications(actual_sampling_points,mod_df)
 
         areas_string = sub('\{sampling_points\}',
                               generate_sampling_points(actual_sampling_points), areas_string)
@@ -202,7 +204,16 @@ def create_dfs(con):
                                                               'objective_type',
                                                               'rep_metric', ])
     sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
-    return responsible_df,authorities_df,zone_metrics_df,sampling_points_df
+    station_codes = pd.read_excel('Allomaskodok.xls')
+    sampling_points_from_file = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+    sampling_points_from_file = sampling_points_from_file.merge(station_codes,
+                                                                left_on=['station_name'],
+                                                                right_on=['Station name'])
+    sampling_points_from_file = sampling_points_from_file[['Zone code', 'component_code',
+                                                          'spo_id', 'station_eoi_code']]
+    sampling_points_from_file.columns = ['zn_code', 'cp_number', 'mc_group_code',
+                                         'sn_eu_code']
+    return responsible_df,authorities_df,zone_metrics_df,sampling_points_from_file
 
 
 def generate_string_from_dfs(responsible_df,authorities_df,zone_metrics_df,
@@ -216,7 +227,7 @@ def generate_string_from_dfs(responsible_df,authorities_df,zone_metrics_df,
 
 
 def evaluate_zones(zone_metrics_df):
-    eval_file_name = 'AssessmentRegimes_HU-003_v3.xls'
+    eval_file_name = 'AssessmentRegimes2016.xls'
     evaluation_df = pd.read_excel(eval_file_name)
     evaluation_df = evaluation_df.dropna(subset=['assessment_method_type',
                                                  'assessment_threshold_exceedance'])
@@ -239,6 +250,8 @@ def generate_xml_structure(con, structure_file_name):
     xml = sub('\{responsible_xml_part\}', responsible_string, xml)
     xml = sub('\{authorities_xml_part\}', authorities_string, xml)
     xml = sub('\{zones_xml_part\}', zones_string, xml)
+    xml = sub('\{localid\}', LOCALID, xml)
+    xml = sub('\{year\}', YEAR, xml)
 
     return xml
 
@@ -248,7 +261,7 @@ def main(drv, mdb):
 
     xml = generate_xml_structure(con, STRUCTURE_LOCATION.format(filename='header_c.txt'))
 
-    save_xml(xml, filename='C.xml')
+    save_xml(xml, filename='REP_D-' + LOCALID + '_C_001.xml')
     print('C generation finished')
 
 if __name__ == '__main__':

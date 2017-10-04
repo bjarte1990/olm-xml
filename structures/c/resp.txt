@@ -48,9 +48,9 @@
                 </base2:RelatedParty>
             </aqd:reportingAuthority>
             <aqd:reportingPeriod>
-                <gml:TimePeriod gml:id="REP_P-HU_OMSZ_20161006_B">
-                    <gml:beginPosition>	2015-01-01T01:00:01	</gml:beginPosition>
-                    <gml:endPosition>	2015-12-31T24:00:00	</gml:endPosition>
+                <gml:TimePeriod gml:id="REP_P-{localid}_{part}">
+                    <gml:beginPosition>	{year}-01-01T01:00:01	</gml:beginPosition>
+                    <gml:endPosition>	{year}-12-31T24:00:00	</gml:endPosition>
                 </gml:TimePeriod>
             </aqd:reportingPeriod>
             {zone_list}

@@ -69,7 +69,7 @@
                     <base2:role/>
                 </base2:RelatedParty>
             </am:competentAuthority>
-            <am:beginLifespanVersion>2016-10-06T11:35:06+01:00</am:beginLifespanVersion>
+            <am:beginLifespanVersion>{DATESTRING_LONG}</am:beginLifespanVersion>
             <am:legalBasis xlink:href="http://rod.eionet.europa.eu/instruments/650"/>
             <aqd:zoneCode>{zone.zn_code}</aqd:zoneCode>
             <aqd:aqdZoneType xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/zonetype/{zone.zn_type}"/>

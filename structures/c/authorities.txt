@@ -1,5 +1,5 @@
 	<gml:featureMember>	
-		<aqd:CompetentAuthorities gml:id="REP_C-2015_2015">
+		<aqd:CompetentAuthorities gml:id="REP_C-{year}_{year}">
 			<aqd:assessmentAirQuality>
 				<base2:RelatedParty>
 					<base2:individualName>

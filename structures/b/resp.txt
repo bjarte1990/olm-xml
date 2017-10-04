@@ -1,7 +1,7 @@
     <gml:featureMember>
         <aqd:AQD_ReportingHeader gml:id="REP_D-{localid}_{part}">
             <aqd:change>true</aqd:change>
-            <aqd:changeDescription>HU-2015</aqd:changeDescription>
+            <aqd:changeDescription>HU-{YEAR}</aqd:changeDescription>
             <aqd:inspireId>
                 <base:Identifier>
                     <base:localId>{localid}</base:localId>
@@ -48,9 +48,9 @@
                 </base2:RelatedParty>
             </aqd:reportingAuthority>
             <aqd:reportingPeriod>
-                <gml:TimePeriod gml:id="REP_P-HU_OMSZ_20161006_B">
-                    <gml:beginPosition>	2015-01-01T01:00:01	</gml:beginPosition>
-                    <gml:endPosition>	2015-12-31T24:00:00	</gml:endPosition>
+                <gml:TimePeriod gml:id="REP_P-HU_OMSZ_{DATESTRING}_B">
+                    <gml:beginPosition>	{YEAR}-01-01T01:00:01	</gml:beginPosition>
+                    <gml:endPosition>	{YEAR}-12-31T24:00:00	</gml:endPosition>
                 </gml:TimePeriod>
             </aqd:reportingPeriod>
 {zone_list}
