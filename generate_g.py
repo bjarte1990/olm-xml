@@ -1,9 +1,11 @@
 from generate_c import *
 import pandas as pd
+import re
 
 NAMESPACE = "HU.OMSZ.AQ"
-YEAR = "2015"
-LOCALID = "HU_OMSZ_20161017"
+YEAR = "2016"
+DATESTRING = strftime("%Y%m%d", gmtime())
+LOCALID = "HU_OMSZ_" + DATESTRING
 PART = "G"
 
 STRUCTURE_LOCATION = 'structures/g/{filename}'
@@ -67,11 +69,14 @@ def parse_info(row, current_structure):
                                       NUMERICAL_EXCEEDANCE_STRING.rstrip())
 
     if not pd.isnull(row['exc_area']):
-        exc_area_string = sub('\{exc_area\}', str(row['exc_area']), SURFACE_AREA_STRING.rstrip())
+        exc_area_string = '\t\t\t\t\t\t\t' + sub('\{exc_area\}', str(row['exc_area']), SURFACE_AREA_STRING) \
+                          + '\n'
 
     if not pd.isnull(row['exc_road_length']):
-        exc_road_length_string = sub('\{exc_road_length\}', str(row['exc_road_length']),
-                                        ROAD_LENGTH_STRING.rstrip())
+        exc_road_length_string = '\t\t\t\t\t\t\t' + sub('\{exc_road_length\}', str(row['exc_road_length']),
+                                        ROAD_LENGTH_STRING)
+    else:
+        exc_area_string = exc_area_string.rstrip()
 
     if not pd.isnull(row['exc_exp_population']):
         exc_exp_population_string = sub('\{exc_exp_population\}',
@@ -149,7 +154,7 @@ def create_responsible_part(responsible_df, zone_metrics_df):
 
 
 def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
-    eval_file = 'Attainments_HU-001_exportv3.xls'
+    eval_file = 'Attainments_HU-001_2016.xls'
     station_file = 'AQIS_HU_Station-001_mod.xls'
     false_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_false.txt'))
     true_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_true.txt'))
@@ -223,6 +228,8 @@ def main(drv, mdb):
     zone_metrics_df = zone_metrics_df.drop_duplicates(subset=['zn_code', 'cp_number',
                                                               'objective_type',
                                                               'rep_metric', ])
+    zone_metrics_df = evaluate_zones(zone_metrics_df)
+
     sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
     responsible_string = create_responsible_part(responsible_df, zone_metrics_df)
     zone_evaluation_string = get_detailed_evaluation(zone_metrics_df, sampling_points_df)
@@ -231,8 +238,10 @@ def main(drv, mdb):
     # todo separate
     xml = read_structure(STRUCTURE_LOCATION.format(filename='header_g.txt'))
     xml = sub('\{responsible_xml_part\}', responsible_string, xml)
-    xml = sub('\{zones_xml_part\}', zone_evaluation_string, xml)
-    save_xml(xml, filename='G.xml')
+    xml = sub('\{zones_xml_part\}', zone_evaluation_string.rstrip(), xml)
+    xml = sub('\{localid\}', LOCALID, xml)
+    xml = sub('\{year\}', YEAR, xml)
+    save_xml(xml, filename='REP_D-' + LOCALID + '_G_001.xml')
 
 
 if __name__ == '__main__':

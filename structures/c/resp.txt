@@ -1,7 +1,7 @@
     <gml:featureMember>
         <aqd:AQD_ReportingHeader gml:id="REP_D-{localid}_{part}">
             <aqd:change>true</aqd:change>
-            <aqd:changeDescription>HU-2015</aqd:changeDescription>
+            <aqd:changeDescription>HU-{year}</aqd:changeDescription>
             <aqd:inspireId>
                 <base:Identifier>
                     <base:localId>{localid}</base:localId>

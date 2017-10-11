@@ -1,13 +1,19 @@
-import sys
 import pandas as pd
 import math
+from time import strftime, gmtime
 
 from generator import *
 
 NAMESPACE = 'HU.OMSZ.AQ'
 STRUCTURE_PATH = 'structures/d/'
+STRUCTURE_LOCATION = 'structures/d/{filename}'
 
-CONTENT_STRING = '<aqd:content xlink:href="' + NAMESPACE + '/{name}"/>\n'
+YEAR = "2016"
+DATESTRING = strftime("%Y%m%d", gmtime())
+LOCALID = "HU_OMSZ_" + DATESTRING
+PART = "D"
+
+CONTENT_STRING = '\t\t\t<aqd:content xlink:href="' + NAMESPACE + '/{name}"/>\n'
 
 NETWORK_QUERY = "SELECT network.nw_name as network_name, " \
                 "organization.og_name as manager_organization_name, " \
@@ -21,6 +27,14 @@ NETWORK_QUERY = "SELECT network.nw_name as network_name, " \
                 "ON network.nw_code = network_function.nw_code) " \
                 "ON organization.og_code = network_function.og_code " \
                 "WHERE network.nn_code_iso2='HU';"
+
+GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
+                        "INNER JOIN person p on p.ps_code = ra.ps_code) " \
+                        "INNER JOIN organization o on o.og_code = ra.og_code " \
+                        "WHERE ra.nn_code_iso2 = 'hu' AND ra.ac_code_comb = {code_comb}"
+
+CODE_COMB = 3
+
 
 def format_component_code(component_code):
     return ''.join(['0'] * (5 - len(str(component_code)))) + str(component_code)
@@ -108,6 +122,12 @@ def generate_station_feature(s):
     structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
                        str(s['station_start_date'])[6:], structure)
+    meteoparams_list = ''
+    for met_par in s['meteorological_parameters'].split(','):
+        meteoparams_list += '\t\t\t<aqd:meteoParams xlink:href="http://dd.eionet.europa.eu/vocabulary/' \
+                  'aq/meteoparameter/{met_par}"/>\n'.format(met_par=met_par)
+
+    structure = sub('\{meteoparams\}', meteoparams_list.rstrip(), structure)
     fields = get_fields_to_replace(structure, 'station')
     structure = sub_all(fields, s, structure)
 
@@ -182,7 +202,7 @@ def generate_contents(con):
 
     station_df = pd.read_excel('AQIS_HU_Station-001_mod.xls')
 
-    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
 
     # generate processes
     for index, row in process_df.iterrows():
@@ -201,32 +221,75 @@ def generate_contents(con):
         network_features += generate_network_feature(row)
 
     print(network_list)
-    print(network_features)
+    #print(network_features)
 
     for index, row in station_df.iterrows():
-        name = 'STA-' + row['station_eoi_code']
-        station_list += CONTENT_STRING.format(name=name)
-        station_features += generate_station_feature(row)
-
+        #todo handle suspended stations
+        try:
+            name = 'STA-' + row['station_eoi_code']
+            station_list += CONTENT_STRING.format(name=name)
+            station_features += generate_station_feature(row)
+        except:
+            break
     # generate sampling_points
-    for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').iterrows():
+    for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').\
+            drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id']).iterrows():
         sp_part = row['station_eoi_code'] + '_' + format_component_code(row['component_code']) + \
                '_' + str(row['spo_id'])
         name = 'SPO-' + sp_part
         #todo check if it is okay
-        name_f = 'SPO_F-' + sp_part + '_' + str(row['oc_id'])
+        name_f = 'SPO_F-' + sp_part + '_' + str(int(row['oc_id']))
         sampling_point_list += CONTENT_STRING.format(name=name)
         sampling_point_f_list += CONTENT_STRING.format(name=name_f)
         sampling_point_features += generate_sampling_point_feature(row)
         sampling_point_f_features += generate_sampling_point_f_feature(row)
 
-    print(sampling_point_features)
-    print(sampling_point_f_features)
+    #print(sampling_point_features)
+    print(sampling_point_list)
+    #print(sampling_point_f_features)
+    all_list = process_list + network_list + station_list + sampling_point_list \
+               + sampling_point_f_list
+    features = process_features + network_features \
+               + station_features + sampling_point_features + sampling_point_f_features
+
+    return all_list, features.rstrip()
+
+
+def create_responsible_part(responsible_df, all_list):
+    structure = read_structure(STRUCTURE_LOCATION.format(filename='resp.txt'))
+    # change basics
+    structure = sub('\{localid\}', LOCALID, structure)
+    structure = sub('\{part\}', PART, structure)
+    resp_to_replace = get_fields_to_replace(structure, prefix='resp')
+
+    responsible_string = ''
+
+    # todo is a loop necessary in this case?
+    for index, row in responsible_df.iterrows():
+        actual_person = sub_all(resp_to_replace, row, structure)
+        # todo hardcode
+        actual_person = sub('\{all_list\}', all_list,
+                            actual_person)
+        responsible_string += actual_person
+
+    return responsible_string
 
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)
-    generate_contents(con)
+    responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB),
+                                       con)
+    all_list, features = generate_contents(con)
+    responsible_string = create_responsible_part(responsible_df, all_list)
+    xml = read_structure(STRUCTURE_LOCATION.format(filename='header_d.txt'))
+
+    xml = sub('\{responsible_xml_part\}', responsible_string, xml)
+    xml = sub('\{body\}', features, xml)
+
+    xml = sub('\{localid\}', LOCALID, xml)
+    xml = sub('\{year\}', YEAR, xml)
+    xml = sub('\{datestring\}', DATESTRING, xml)
+    save_xml(xml, filename='REP_D-' + LOCALID + '_D_001.xml')
 
 if __name__ == '__main__':
     main("{Microsoft Access Driver (*.mdb, *.accdb)}", "C:\\olm.mdb")

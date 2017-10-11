@@ -1,8 +1,8 @@
 	<gml:featureMember>
-		<aqd:AQD_Network gml:id="{network.network_code}" >
+		<aqd:AQD_Network gml:id="NET-{network.network_code}" >
 			<ef:inspireId>
 				<base:Identifier>
-					<base:localId>{network.network_code}</base:localId>
+					<base:localId>NET-{network.network_code}</base:localId>
 					<base:namespace>{NAMESPACE}</base:namespace>
 					<base:versionId>AQIS1.1</base:versionId>
 				</base:Identifier>

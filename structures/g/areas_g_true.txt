@@ -21,9 +21,7 @@
                     {exc.number_exceedence}{exc.numerical_exceedence}
                     <aqd:exceedanceArea>
                         <aqd:ExceedanceArea>{area_classification}                            <aqd:spatialExtent/>
-                            {exc.surface_area}
-                            {exc.road_length}
-                            {exc.stations}
+{exc.surface_area}{exc.road_length}{exc.stations}
                             <aqd:administrativeUnit/>
                         </aqd:ExceedanceArea>
                     </aqd:exceedanceArea>

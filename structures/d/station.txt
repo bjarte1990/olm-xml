@@ -30,8 +30,7 @@
 			<aqd:natlStationCode>{station.station_local_code}</aqd:natlStationCode>
 			<aqd:municipality>{station.station_lau_name2}</aqd:municipality>
 			<aqd:EUStationCode>{station.station_airbase_code}</aqd:EUStationCode>
-			<aqd:meteoParams xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/meteoparameter/73"/>
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!METEOPARAMS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+{meteoparams}
 			<aqd:areaClassification xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/areaclassification/{station.station_type_of_area}"/>
 			<aqd:altitude uom="m">{station.station_altitude}</aqd:altitude>
 		</aqd:AQD_Station>

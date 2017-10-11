@@ -167,7 +167,7 @@ def create_areas(zone_metrics_df, sampling_points_df):
     structure = read_structure(STRUCTURE_LOCATION.format(filename='areas.txt'))
     areas_to_replace = get_fields_to_replace(structure, prefix='zone')
 
-    mod_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+    mod_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
 
     areas_string = ''
     for index, row in zone_metrics_df.iterrows():
@@ -205,7 +205,7 @@ def create_dfs(con):
                                                               'rep_metric', ])
     sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
     station_codes = pd.read_excel('Allomaskodok.xls')
-    sampling_points_from_file = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+    sampling_points_from_file = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
     sampling_points_from_file = sampling_points_from_file.merge(station_codes,
                                                                 left_on=['station_name'],
                                                                 right_on=['Station name'])
