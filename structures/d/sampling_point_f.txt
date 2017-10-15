@@ -14,5 +14,7 @@
 				</base:Identifier>
 			</aqd:inspireId>
 			<aqd:inletHeight uom="http://dd.eionet.europa.eu/vocabulary/uom/length/m">{spf.height_sampling_point}</aqd:inletHeight>
+		    <aqd:buildingDistance uom="m">{spf.station_distance_to_junction}</aqd:buildingDistance>
+		    <aqd:kerbDistance uom="m">{spf.station_distance_from_kerb}</aqd:kerbDistance>
 		</aqd:AQD_Sample>
 	</gml:featureMember>

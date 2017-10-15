@@ -1,0 +1,15 @@
+            <ef:observingCapability>
+				<ef:ObservingCapability gml:id="SPO_OC-{station_eoi_code}_{long_component_code}_{spo_id}_{oc_id}" >
+					<ef:observingTime>
+						<gml:TimePeriod gml:id="SPO_OC_T-{station_eoi_code}_{long_component_code}_{spo_id}_{oc_id}" >
+							<gml:beginPosition>{spo_start_date}T00:00:00+01:00</gml:beginPosition>
+							<gml:endPosition indeterminatePosition="unknown"/>
+						</gml:TimePeriod>
+					</ef:observingTime>
+					<ef:processType xlink:href="http://inspire.ec.europa.eu/codeList/ProcessTypeValue/process"/>
+					<ef:resultNature xlink:href="http://inspire.ec.europa.eu/codeList/ResultNatureValue/primary"/>
+					<ef:procedure xlink:href="HU.OMSZ.AQ/{process_id}" />
+					<ef:featureOfInterest xlink:href="HU.OMSZ.AQ/SPO_F-{station_eoi_code}_{long_component_code}_{spo_id}_{oc_id}"/>
+					<ef:observedProperty xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/{component_code}"/>
+				</ef:ObservingCapability>
+			</ef:observingCapability>

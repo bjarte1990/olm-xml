@@ -47,6 +47,8 @@ def generate_process_feature(p):
     if p['method_type'] == 'active':
         method_structure = read_structure('sampling_method.txt')
         method_structure = sub('\{method\}', 'other', method_structure)
+        # todo is it okay?
+        # method_structure = sub('\{other_method\}', 'UNKNOWN', method_structure)
         method_structure = sub('\{other_method\}', 'UNKNOWN', method_structure)
     else:
         method_structure = read_structure('measurement_method.txt')
@@ -92,24 +94,26 @@ def generate_network_feature(n, fromdb=False):
     if fromdb:
         structure = sub('\{address1\}', n['address'], structure)
         structure = sub('\{address2\}', n['city'], structure)
+        n['network_start_date'] = str(n['network_start_date']).split()[0]
+        n['network_end_date'] = str(n['network_end_date']).split()[0]
     else:
         structure = sub('\{address1\}', ' '.join(n['manager_organization_address'].split()[:2]), structure)
         structure = sub('\{address2\}', n['manager_organization_address'].split()[1], structure)
         n['network_start_date'] = str(n['network_start_date'])[:4] + '-' + \
                                   str(n['network_start_date'])[4:6] + '-' + \
-                                  str(n['network_start_date'])[6:]
+                                  str(n['network_start_date'])[6:8]
         if not isinstance(n['network_end_date'], float):
             n['network_end_date'] = str(n['network_end_date'])[:4] + '-' + \
                                       str(n['network_end_date'])[4:6] + '-' + \
-                                      str(n['network_end_date'])[6:]
+                                      str(n['network_end_date'])[6:8]
 
     if isinstance(n['network_end_date'], float):
         structure = sub('\{endposition\}',
                            '<gml:endPosition indeterminatePosition="unknown"/>', structure)
     else:
-        structure = sub('\{endposition\}', '<gml:beginPosition>'
+        structure = sub('\{endposition\}', '<gml:endPosition>'
                                               '{network.network_end_date}T00:00:00+01:00'
-                                              '</gml:beginPosition>', structure)
+                                              '</gml:endPosition>', structure)
 
     fields = get_fields_to_replace(structure, 'network')
     structure = sub_all(fields, n, structure)
@@ -121,9 +125,13 @@ def generate_station_feature(s):
     structure = read_structure(STRUCTURE_PATH + 'station.txt')
     structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
-                       str(s['station_start_date'])[6:], structure)
+                       str(s['station_start_date'])[6:8], structure)
     meteoparams_list = ''
-    for met_par in s['meteorological_parameters'].split(','):
+    try:
+        parameters = s['meteorological_parameters'].split(',')
+    except:
+        parameters = [str(s['meteorological_parameters'])]
+    for met_par in parameters:
         meteoparams_list += '\t\t\t<aqd:meteoParams xlink:href="http://dd.eionet.europa.eu/vocabulary/' \
                   'aq/meteoparameter/{met_par}"/>\n'.format(met_par=met_par)
 
@@ -134,8 +142,36 @@ def generate_station_feature(s):
     return structure
 
 
-def generate_sampling_point_feature(sp):
+def generate_observings(sp,full):
+    structure = read_structure(STRUCTURE_PATH + 'observing.txt')
+    observing_string = ''
+    for i, row in full.loc[(full['station_eoi_code'] == sp['station_eoi_code'])
+                   & (full['component_code'] == sp['component_code'])
+                   & (full['spo_id'] == sp['spo_id'])].iterrows():
+        if math.isnan(row['oc_id']):
+            row['oc_id'] = int(row['oc_id_new'])
+        else:
+            row['oc_id'] = int(row['oc_id'])
+
+        current_structure = read_structure(STRUCTURE_PATH + 'observing.txt')
+        long_component_code = format_component_code(row['component_code'])
+        current_structure = sub('\{long_component_code\}', long_component_code,
+                                current_structure)
+        current_structure = sub('\{spo_start_date\}',
+                        str(sp['spo_startdate'])[:4] + "-" + str(sp['spo_startdate'])[
+                                                             4:6] + '-' +
+                        str(sp['spo_startdate'])[6:8], current_structure)
+        fields = get_fields_to_replace(current_structure)
+        current_structure = sub_all(fields, row, current_structure) + '\n'
+        observing_string += current_structure
+
+    return observing_string.rstrip()
+
+def generate_sampling_point_feature(sp, full):
     structure = read_structure(STRUCTURE_PATH + 'sampling_point.txt')
+
+    observings = generate_observings(sp, full)
+    structure = sub('\{observing\}', observings, structure)
     #stored as double
     if math.isnan(sp['oc_id']):
         sp['oc_id'] = int(sp['oc_id_new'])
@@ -146,7 +182,7 @@ def generate_sampling_point_feature(sp):
     structure = sub('\{component_code\}', component_code, structure)
 
     structure = sub('\{spo_start_date\}', str(sp['spo_startdate'])[:4] + "-" + str(sp['spo_startdate'])[4:6] + '-' +
-                       str(sp['spo_startdate'])[6:], structure)
+                       str(sp['spo_startdate'])[6:8], structure)
     #structure = re.sub('\{oc_start_date\}', str(sp['oc_startdate'])[:4] + "-" + str(sp['oc_startdate'])[4:6] + '-' +
     #                   str(sp['oc_startdate'])[6:], structure)
 
@@ -163,6 +199,10 @@ def generate_sampling_point_f_feature(spf):
         spf['oc_id'] = int(spf['oc_id_new'])
     else:
         spf['oc_id'] = int(spf['oc_id'])
+    if math.isnan(spf['station_distance_from_kerb']):
+        spf['station_distance_from_kerb'] = 0
+    if math.isnan(spf['station_distance_to_junction']):
+        spf['station_distance_to_junction'] = 0
     component_code = format_component_code(spf['component_code'])
     structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = sub('\{component_code\}', component_code, structure)
@@ -229,19 +269,36 @@ def generate_contents(con):
             name = 'STA-' + row['station_eoi_code']
             station_list += CONTENT_STRING.format(name=name)
             station_features += generate_station_feature(row)
-        except:
+        except Exception as e:
+            print(e)
             break
+    sampling_point_merge = sampling_point_df.merge(station_df, on='station_eoi_code')
     # generate sampling_points
     for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').\
             drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id']).iterrows():
+    # for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').iterrows():
+    #     if math.isnan(row['oc_id']):
+    #         row['oc_id'] = int(row['oc_id_new'])
+    #     else:
+    #         row['oc_id'] = int(row['oc_id'])
         sp_part = row['station_eoi_code'] + '_' + format_component_code(row['component_code']) + \
                '_' + str(row['spo_id'])
         name = 'SPO-' + sp_part
         #todo check if it is okay
         name_f = 'SPO_F-' + sp_part + '_' + str(int(row['oc_id']))
         sampling_point_list += CONTENT_STRING.format(name=name)
+        sampling_point_features += generate_sampling_point_feature(row, sampling_point_merge)
+    for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').iterrows():
+        if math.isnan(row['oc_id']):
+            row['oc_id'] = int(row['oc_id_new'])
+        else:
+            row['oc_id'] = int(row['oc_id'])
+        sp_part = row['station_eoi_code'] + '_' + format_component_code(
+            row['component_code']) + \
+                  '_' + str(row['spo_id'])
+        # todo check if it is okay
+        name_f = 'SPO_F-' + sp_part + '_' + str(int(row['oc_id']))
         sampling_point_f_list += CONTENT_STRING.format(name=name_f)
-        sampling_point_features += generate_sampling_point_feature(row)
         sampling_point_f_features += generate_sampling_point_f_feature(row)
 
     #print(sampling_point_features)

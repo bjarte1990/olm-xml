@@ -13,21 +13,7 @@
 					<gml:pos srsDimension="2">{sp.station_latitude_d} {sp.station_longitude_d}</gml:pos>
 				</gml:Point>
 			</ef:geometry>
-			<ef:observingCapability>
-				<ef:ObservingCapability gml:id="SPO_OC-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}" >
-					<ef:observingTime>
-						<gml:TimePeriod gml:id="SPO_OC_T-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}" >
-							<gml:beginPosition>{spo_start_date}T00:00:00+01:00</gml:beginPosition>
-							<gml:endPosition indeterminatePosition="unknown"/>
-						</gml:TimePeriod>
-					</ef:observingTime>
-					<ef:processType xlink:href="http://inspire.ec.europa.eu/codeList/ProcessTypeValue/process"/>
-					<ef:resultNature xlink:href="http://inspire.ec.europa.eu/codeList/ResultNatureValue/primary"/>
-					<ef:procedure xlink:href="HU.OMSZ.AQ/{sp.process_id}" />
-					<ef:featureOfInterest xlink:href="HU.OMSZ.AQ/SPO_F-{sp.station_eoi_code}_{component_code}_{sp.spo_id}_{sp.oc_id}"/>
-					<ef:observedProperty xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/pollutant/1"/>
-				</ef:ObservingCapability>
-			</ef:observingCapability>
+{observing}
 			<ef:broader xlink:href="HU.OMSZ.AQ/STA-{sp.station_eoi_code}"/>
 			<ef:measurementRegime xlink:href="http://inspire.ec.europa.eu/codeList/MeasurementRegimeValue/continuousDataCollection"/>
 			<ef:mobile>false</ef:mobile>
