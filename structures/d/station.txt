@@ -21,7 +21,7 @@
 					<ef:activityTime>
 						<gml:TimePeriod gml:id="STA_T-STA-{station.station_eoi_code}" >
 							<gml:beginPosition>{date}T00:00:00+01:00</gml:beginPosition>
-							<gml:endPosition indeterminatePosition="unknown"/>
+							<gml:endPosition{end_date}>
 						</gml:TimePeriod>
 					</ef:activityTime>
 				</ef:OperationalActivityPeriod>

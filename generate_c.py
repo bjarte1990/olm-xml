@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 from generator import *
 from time import strftime, gmtime
+from math import nan
 
 NAMESPACE = "HU.OMSZ.AQ"
 YEAR = "2016"
@@ -229,8 +230,9 @@ def generate_string_from_dfs(responsible_df,authorities_df,zone_metrics_df,
 def evaluate_zones(zone_metrics_df):
     eval_file_name = 'AssessmentRegimes2016.xls'
     evaluation_df = pd.read_excel(eval_file_name)
-    evaluation_df = evaluation_df.dropna(subset=['assessment_method_type',
-                                                 'assessment_threshold_exceedance'])
+    evaluation_df['assessment_threshold_exceedance'] = evaluation_df['assessment_threshold_exceedance'].fillna('NA/')
+    # evaluation_df = evaluation_df.dropna(subset=['assessment_method_type',
+    #                                              'assessment_threshold_exceedance'])
     return zone_metrics_df.merge(evaluation_df, left_on=['zn_code', 'env_poll_code'],
                                 right_on=['zone_code', 'ENV_pollutant'])
 

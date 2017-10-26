@@ -2,7 +2,7 @@
         <aqd:AQD_Attainment gml:id="ATT-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}">
             <aqd:inspireId>
                 <base:Identifier>
-                    <base:localId>ARE-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
+                    <base:localId>ATT-{zone.zn_code}_{ZEROS#cp_number}_{zone.objective_type}_{zone.rep_metric}_{year}</base:localId>
                     <base:namespace>HU.OMSZ.AQ</base:namespace>
                     <base:versionId>AQIS1.1</base:versionId>
                 </base:Identifier>

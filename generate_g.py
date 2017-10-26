@@ -16,7 +16,7 @@ NUMERICAL_EXCEEDANCE_STRING = '<aqd:numericalExceedance>{exc_value_max}</aqd:num
 ROAD_LENGTH_STRING = '<aqd:roadLength uom="http://dd.eionet.europa.eu/vocabulary/uom/length/km">{exc_road_length}</aqd:roadLength>'
 POPULATION_EXPOSED_STRING = '<aqd:populationExposed>{exc_exp_population}</aqd:populationExposed>'
 SURFACE_AREA_STRING = '<aqd:surfaceArea uom="http://dd.eionet.europa.eu/vocabulary/uom/area/km2">{exc_area}</aqd:surfaceArea>'
-COMMENT_STRING = '<aqd:comment />'
+COMMENT_STRING = '<aqd:comment/>'
 
 G_SAMPLING_POINTS_STRING = '\n\t\t\t\t\t\t\t<aqd:stationUsed ' \
                          'xlink:href="{namespace}/' \
@@ -61,11 +61,11 @@ def parse_info(row, current_structure):
     exc_comment_string = ''
 
     if not pd.isnull(row['exc_number_max']):
-        exc_number_max_string = sub('\{exc_number_max\}', str(row['exc_number_max']),
+        exc_number_max_string = sub('\{exc_number_max\}', str(int(row['exc_number_max'])),
                                        NUMBER_EXCEEDENCE_STRING.rstrip())
 
     if not pd.isnull(row['exc_value_max']):
-        exc_value_max_string = sub('\{exc_value_max\}', str(row['exc_value_max']),
+        exc_value_max_string = sub('\{exc_value_max\}', str(int(row['exc_value_max'])),
                                       NUMERICAL_EXCEEDANCE_STRING.rstrip())
 
     if not pd.isnull(row['exc_area']):
@@ -80,7 +80,7 @@ def parse_info(row, current_structure):
 
     if not pd.isnull(row['exc_exp_population']):
         exc_exp_population_string = sub('\{exc_exp_population\}',
-                                           str(row['exc_exp_population']),
+                                           str(int(row['exc_exp_population'])),
                                            POPULATION_EXPOSED_STRING.rstrip())
 
     if not pd.isnull(row['exc_reason']):
@@ -109,7 +109,7 @@ def parse_info(row, current_structure):
 
     current_structure = sub('\{exc\.reason\}', exc_reason_string, current_structure)
 
-    current_structure = sub('\{exc.comment\}', '<aqd:comment/ >', current_structure)
+    current_structure = sub('\{exc.comment\}', '<aqd:comment/>', current_structure)
 
     return current_structure
 
@@ -241,6 +241,7 @@ def main(drv, mdb):
     xml = sub('\{zones_xml_part\}', zone_evaluation_string.rstrip(), xml)
     xml = sub('\{localid\}', LOCALID, xml)
     xml = sub('\{year\}', YEAR, xml)
+    xml = sub('\{part\}', PART, xml)
     save_xml(xml, filename='REP_D-' + LOCALID + '_G_001.xml')
 
 

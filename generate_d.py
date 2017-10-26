@@ -126,6 +126,15 @@ def generate_station_feature(s):
     structure = sub('\{NAMESPACE\}', NAMESPACE, structure)
     structure = sub('\{date\}', str(s['station_start_date'])[:4] + "-" + str(s['station_start_date'])[4:6] + '-' +
                        str(s['station_start_date'])[6:8], structure)
+    print(s['station_eoi_code'])
+    if math.isnan(s['station_end_date']):
+        structure = sub('\{end_date\}', ' indeterminatePosition = "unknown" /', structure)
+    else:
+        print(str(s['station_end_date']))
+        structure = sub('\{end_date\}', '>' + str(s['station_end_date'])[:4] + "-"
+                        + str(s['station_end_date'])[4:6] + '-'
+                        + str(s['station_end_date'])[6:8]
+                        + 'T00:00:00+01:00</gml:endPosition', structure)
     meteoparams_list = ''
     try:
         parameters = s['meteorological_parameters'].split(',')
@@ -145,9 +154,15 @@ def generate_station_feature(s):
 def generate_observings(sp,full):
     structure = read_structure(STRUCTURE_PATH + 'observing.txt')
     observing_string = ''
-    for i, row in full.loc[(full['station_eoi_code'] == sp['station_eoi_code'])
+
+    current = full.loc[(full['station_eoi_code'] == sp['station_eoi_code'])
                    & (full['component_code'] == sp['component_code'])
-                   & (full['spo_id'] == sp['spo_id'])].iterrows():
+                   & (full['spo_id'] == sp['spo_id'])
+                   #& (full['oc_id'] == sp['oc_id'])
+                    ]
+
+    for i, row in current.iterrows():
+        print(row)
         if math.isnan(row['oc_id']):
             row['oc_id'] = int(row['oc_id_new'])
         else:
@@ -240,7 +255,7 @@ def generate_contents(con):
     # drop those from db df which are in file df
     network_db_df = network_db_df[~network_db_df['network_code'].isin(network_file_df['network_code'])]
 
-    station_df = pd.read_excel('AQIS_HU_Station-001_mod.xls')
+    station_df = pd.read_excel('AQIS_HU_Station-001_mod_s_add.xls')
 
     sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
 
@@ -254,6 +269,7 @@ def generate_contents(con):
         name = 'NET-' + row['network_code']
         network_list += CONTENT_STRING.format(name=name)
         network_features += generate_network_feature(row, fromdb=True)
+
 
     for index, row in network_file_df.iterrows():
         name = 'NET-' + row['network_code']
@@ -273,6 +289,9 @@ def generate_contents(con):
             print(e)
             break
     sampling_point_merge = sampling_point_df.merge(station_df, on='station_eoi_code')
+    test = sampling_point_df.merge(station_df, on='station_eoi_code').\
+            drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id', 'oc_id'])
+
     # generate sampling_points
     for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').\
             drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id']).iterrows():
@@ -285,10 +304,12 @@ def generate_contents(con):
                '_' + str(row['spo_id'])
         name = 'SPO-' + sp_part
         #todo check if it is okay
-        name_f = 'SPO_F-' + sp_part + '_' + str(int(row['oc_id']))
+        #name_f = 'SPO_F-' + sp_part + '_' + str(int(row['oc_id']))
         sampling_point_list += CONTENT_STRING.format(name=name)
-        sampling_point_features += generate_sampling_point_feature(row, sampling_point_merge)
-    for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').iterrows():
+        print(row['station_eoi_code'])
+        sampling_point_features += generate_sampling_point_feature(row, test)
+    for index, row in sampling_point_df.merge(station_df, on='station_eoi_code').\
+            drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id', 'oc_id']).iterrows():
         if math.isnan(row['oc_id']):
             row['oc_id'] = int(row['oc_id_new'])
         else:
