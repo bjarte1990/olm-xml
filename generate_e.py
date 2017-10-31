@@ -5,7 +5,42 @@ from math import isnan
 from datetime import datetime, timedelta
 
 NAMESPACE = 'HU.OMSZ.AQ'
-YEAR = '2015'
+YEAR = '2016'
+
+# 1 - SO2
+# 5 - PM10
+# 7 - O3
+# 8 - NO2
+# 9 - NOX as NO2
+# 10 - CO
+# 20 - C6H6
+# 21 - C6H5-CH3
+# 431 - C6H5-C2H5
+# 464 - m,p-C6H4(CH3)2
+# 482 - o-C6H4-(CH3)2
+# 5014 - cd in PM10
+# 5015 - NI in PM10
+# 5018 - AS in PM10
+# 5029 - Bap in PM10
+# 5380 - Benzo(b,j,k)fluoranthene in PM10
+# 5419 - Dibenzo(ah)anthracene in PM10
+# 5610 - Benzo(a)anthracene in PM10
+# 5655 - indeno_123cd_pyrene in PM10 (aerosol)
+# 6001 - PM2.5
+
+
+# MISSING FROM MAPPINGS:
+# 5014
+# 5015
+# 5018
+# 5029
+# 5380
+# 5419
+# 5610
+# 5655
+# 0611
+#
+
 
 STRUCTURE_LOCATION = 'structures/e/{filename}'
 
@@ -17,12 +52,14 @@ def format_component_code(component_code):
     return ''.join(['0'] * (5 - len(str(component_code)))) + str(component_code)
 
 
-def get_obp_list(sampling_point_df):
-    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+def get_obp_list():
+    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
+    reduced_sp_df = sampling_point_df.drop_duplicates(
+        subset=['station_eoi_code', 'component_code'], keep='last')
     time_series = get_timeseries()
     obp_list = ''
     observ = ''
-    for index, row in sampling_point_df.iterrows():
+    for index, row in reduced_sp_df.iterrows():
         current_spo = re.sub('\{namespace\}', NAMESPACE, obp_string)
         current_spo = re.sub('\{year\}', YEAR, current_spo)
         current_spo = re.sub('\{component_code\}',
@@ -40,7 +77,8 @@ def get_obp_list(sampling_point_df):
             ts = list(map(lambda x: x[0].split(' ')[0].split('.')[2] +
                                x[0].split(' ')[0].split('.')[1] +
                                x[0].split(' ')[0].split('.')[0] + ' ' +
-                                    ('00:00' if x[0].split(' ')[1] == '24:00' else x[0].split(' ')[1]) +
+                               x[0].split(' ')[1] +
+                                    #('00:00' if x[0].split(' ')[1] == '24:00' else x[0].split(' ')[1]) +
                                ', ' + str(x[1]), data['timeseries']))
 
             metric = data['metric']
@@ -55,17 +93,22 @@ def get_obp_list(sampling_point_df):
 
 
 def get_timeseries():
-    files = ['BENZOL', 'CO', 'MP XILOL', 'NO2', 'NOX', 'O3', 'SO2', 'TOLUOL', 'PM10']
+    files = [('BENZOL','20'), ('CO','10'), ('ETILBENZOL','431'), ('MP XILOL','464'),
+             ('NO2','8'),('NOX','9'), ('O3','7'), ('OXYLENE','482'), ('SO2','1'),
+             ('TOLUOL','21'), ('PM10','5'),('PM10','5014'),('PM10','5015'),('PM10','5018'),
+             ('PM10','5029'),('PM10','5380'),('PM10', '5419'),('PM10','5610'),
+             ('PM10','5655'),('PM25','6001'),
+             ]
 
-    with open('timeseries/mapping.txt') as f:
-        mapping = dict(
-            map(lambda x: x.split(':'), map(lambda y: y.rstrip(), f.readlines())))
+    # with open('timeseries/mapping.txt') as f:
+    #     mapping = dict(
+    #         map(lambda x: x.split(':'), map(lambda y: y.rstrip(), f.readlines())))
 
-    stations_df = pd.read_excel('Allomaskodok.xls')
+    stations_df = pd.read_excel('Allomaskodok_e.xls')
 
     pollutants = {}
 
-    for file in files:
+    for file,code in files:
         observ_time = pd.read_excel('timeseries/' + file + '.xls').iloc[0].index[0]
         if 'Day' in observ_time:
             observ_time = 'day'
@@ -84,14 +127,39 @@ def get_timeseries():
             current_df = current_df.drop(current_df.tail(8).index)
 
             st_code = \
-            stations_df[stations_df['Állomásnév'] == station]['EoI állomáskód'].values[0]
+            stations_df[stations_df['Station name'] == station]['EoI code'].values[0]
+
+            #stations_df[stations_df['Állomásnév'] == station]['EoI állomáskód'].values[0]
             station_dict[st_code] = dict()
             station_dict[st_code]['metric'] = df[station][1]
             station_dict[st_code]['time'] = observ_time
             station_dict[st_code]['timeseries'] = [tuple(x) for x in current_df.values]
 
-        pollutants[mapping[file]] = station_dict
+        pollutants[code ] = station_dict
 
+    ## add K-Puszta
+    k_puszta = pd.read_excel('timeseries/kpuszta_no2so2pmo3_2016.xls', sheetname=None,
+                             skiprows=7)
+    k_puszta_mapping = {'NO2':'8','SO2':'1','PM10':'5','O3':'7'}
+    for sheet,kp_df in k_puszta.items():
+        kp_df = kp_df.drop(kp_df.columns[0], axis=1)
+        kp_df.columns=['time', 'value']
+        in_pollutants = pollutants[k_puszta_mapping[sheet]]
+        if sheet == 'O3':
+            timeseries = []
+            for i, time_row in kp_df.iterrows():
+                d,t = str(time_row['time']).split()
+                y,m,d = d.split('-')
+                timeseries.append((d+'.'+m+'.'+y+' '+t[:5], time_row['value']))
+        else:
+            timeseries = []
+            for i, time_row in kp_df.iterrows():
+                d, t = str(time_row['time']).split()
+                y, m, d = d.split('-')
+                timeseries.append((d + '.' + m + '.' + y + ' 24:00' , time_row['value']))
+        kpuszta_new = {'time': 'day', 'metric': 'ug/m3', 'timeseries': timeseries}
+        in_pollutants['HU0002R'] = kpuszta_new
+        pollutants[k_puszta_mapping[sheet]] = in_pollutants
     return pollutants
 
 def get_pollutant_observing(sp_df, time_series, metric, observ_time):
@@ -109,19 +177,36 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
     else:
         time_series = list(filter(lambda x: x.split()[0] >= str(sp_df['oc_startdate']),
                                   time_series))
+    time_string_format = '%s-%s-%sT%s:%s:%s+01:00'
     # todo fix metric
     values = ''
+    month_changer = '00'
     for ts in time_series:
         dt, f = ts.split(',')
-        t = datetime.strptime(dt, "%Y%m%d %H:%M")
-        if observ_time == 'hour':
-            end_time = t + timedelta(hours=1)
-        elif observ_time == 'day':
-            end_time = t + timedelta(days=1)
-        else:
-            end_time = t + timedelta(months=1)
-        values += '%s,%s,%s@@' % (t.strftime(time_format), end_time.strftime(time_format),
-                                 f.strip())
+        try:
+            float(f)
+            date_part, hour_part = dt.split(' ')
+            year, month, day, hour, minute = (date_part[:4], date_part[4:6], date_part[6:8],
+                                              hour_part.split(':')[0],
+                                              hour_part.split(':')[1])
+            end_time = time_string_format % (year, month, day, hour, minute, '00')
+            # t = datetime.strptime(dt, "%Y%m%d %H:%M")
+            if observ_time == 'hour':
+                # start_time = t + timedelta(hours=1)
+                start_hour = int(hour) - 1
+                start_hour = '0' + str(start_hour) if start_hour < 10 else str(start_hour)
+                start_time = time_string_format % (
+                year, month, day, start_hour, minute, '00')
+            else:  # elif observ_time == 'day':
+                start_time = time_string_format % (year, month, day, '00', minute, '00')
+            # else:
+            #     end_time = t + timedelta(months=1)
+            values += '%s,%s,%s,1,1@@' % (start_time, end_time, f.strip())
+            if month > month_changer:
+                values += '\n'
+                month_changer = month
+        except ValueError:
+            continue
 
     structure = read_structure(STRUCTURE_LOCATION.format(filename='samplings.txt'))
     structure = re.sub('\{namespace\}', NAMESPACE, structure)
@@ -152,11 +237,11 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)
-    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-001_mod.xls')
+    #sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
 
-    obp_list_string, observations = get_obp_list(sampling_point_df)
+    obp_list_string, observations = get_obp_list()
 
-    save_xml(observations, filename='E.xml')
+    save_xml(obp_list_string+observations, filename='E.xml')
 
 
 if __name__ == '__main__':

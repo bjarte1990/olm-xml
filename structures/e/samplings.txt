@@ -11,7 +11,7 @@
 					<gml:timePosition>{current_time}</gml:timePosition>
 				</gml:TimeInstant>
 			</om:resultTime>
-			<om:procedure xlink:href="{namespace}/SPP-{process_id}" />
+			<om:procedure xlink:href="{namespace}/{process_id}" />
 			<om:parameter>
 				<om:NamedValue>
 					<om:name xlink:href="http://dd.eionet.europa.eu/vocabulary/aq/processparameter/AssessmentType"/>
