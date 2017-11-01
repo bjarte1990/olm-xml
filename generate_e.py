@@ -3,44 +3,14 @@ import pandas as pd
 import re
 from math import isnan
 from datetime import datetime, timedelta
+import numpy as np
+from time import strftime, gmtime
 
-NAMESPACE = 'HU.OMSZ.AQ'
-YEAR = '2016'
-
-# 1 - SO2
-# 5 - PM10
-# 7 - O3
-# 8 - NO2
-# 9 - NOX as NO2
-# 10 - CO
-# 20 - C6H6
-# 21 - C6H5-CH3
-# 431 - C6H5-C2H5
-# 464 - m,p-C6H4(CH3)2
-# 482 - o-C6H4-(CH3)2
-# 5014 - cd in PM10
-# 5015 - NI in PM10
-# 5018 - AS in PM10
-# 5029 - Bap in PM10
-# 5380 - Benzo(b,j,k)fluoranthene in PM10
-# 5419 - Dibenzo(ah)anthracene in PM10
-# 5610 - Benzo(a)anthracene in PM10
-# 5655 - indeno_123cd_pyrene in PM10 (aerosol)
-# 6001 - PM2.5
-
-
-# MISSING FROM MAPPINGS:
-# 5014
-# 5015
-# 5018
-# 5029
-# 5380
-# 5419
-# 5610
-# 5655
-# 0611
-#
-
+NAMESPACE = "HU.OMSZ.AQ"
+YEAR = "2016"
+DATESTRING = strftime("%Y%m%d", gmtime())
+LOCALID = "HU_OMSZ_" + DATESTRING
+PART = "E"
 
 STRUCTURE_LOCATION = 'structures/e/{filename}'
 
@@ -48,14 +18,25 @@ obp_string = '<aqd:content xlink:href="{namespace}/OBP-{station_eoi_code}_' \
              '{component_code}_{spo_id}_{oc_id}_{year}"/>\n'
 
 
+GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
+                        "INNER JOIN person p on p.ps_code = ra.ps_code) " \
+                        "INNER JOIN organization o on o.og_code = ra.og_code " \
+                        "WHERE ra.nn_code_iso2 = 'hu' AND ra.ac_code_comb = {code_comb}"
+
+CODE_COMB = 3
+
 def format_component_code(component_code):
     return ''.join(['0'] * (5 - len(str(component_code)))) + str(component_code)
 
 
 def get_obp_list():
     sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
+
+    code_list = [20,10,431,464,8,9,7,482,1,21,5,5014,5015,5018,5029,5380,5419,5610,5655,
+                 6001,7018,7013,7014,7015,7029,611,7380,7419,656]
     reduced_sp_df = sampling_point_df.drop_duplicates(
         subset=['station_eoi_code', 'component_code'], keep='last')
+    reduced_sp_df = reduced_sp_df[reduced_sp_df['component_code'].isin(code_list)]
     time_series = get_timeseries()
     obp_list = ''
     observ = ''
@@ -100,6 +81,7 @@ def get_timeseries():
              ('PM10','5655'),('PM25','6001'),
              ]
 
+
     # with open('timeseries/mapping.txt') as f:
     #     mapping = dict(
     #         map(lambda x: x.split(':'), map(lambda y: y.rstrip(), f.readlines())))
@@ -137,6 +119,33 @@ def get_timeseries():
 
         pollutants[code ] = station_dict
 
+    ## riv
+    riv_mapping = {'PM10':'5','PM2.5':'6001', 'AS':'7018','Cd':'7014','Ni':'7015',
+                   'BaP':'7029','BaA':'611','Bfo':'7380','dBaA':'7419','I1P':'656'}
+    print(riv_mapping.keys())
+    riv_dfs = pd.read_excel('timeseries/riv_adatsorok2016.xls',
+                            sheetname=list(riv_mapping.keys()), skiprows=1)
+    for sheet, riv_df in riv_dfs.items():
+        new_cols = ['timestamps']
+        new_cols.extend(list(riv_df.columns)[1:])
+        riv_df.columns = new_cols
+        try:
+            in_pollutants = pollutants[riv_mapping[sheet]]
+        except KeyError:
+            in_pollutants = {}
+        for code in new_cols[1:]:
+            dates = map(lambda x: str(x), list(riv_df['timestamps']))
+            values = map(lambda x: str(x), list(riv_df[code]))
+            timeseries = list(filter(lambda x: x[1] != "nan",
+                                (map(lambda x, y: (x[6:8]+'.'+x[4:6]+'.'+x[:4]+' 24:00', y),
+                                  dates, values))))
+            new_entry = {'time': 'day', 'metric': 'ug/m3', 'timeseries': timeseries}
+            in_pollutants[code] = new_entry
+            pollutants[riv_mapping[sheet]] = in_pollutants
+
+
+        print(sheet)
+
     ## add K-Puszta
     k_puszta = pd.read_excel('timeseries/kpuszta_no2so2pmo3_2016.xls', sheetname=None,
                              skiprows=7)
@@ -160,6 +169,29 @@ def get_timeseries():
         kpuszta_new = {'time': 'day', 'metric': 'ug/m3', 'timeseries': timeseries}
         in_pollutants['HU0002R'] = kpuszta_new
         pollutants[k_puszta_mapping[sheet]] = in_pollutants
+
+    ## add k-puszta from riv
+    k_puszta_riv_df = pd.read_excel('timeseries/riv_adatsorok2016.xls',
+                            sheetname='Ülepedés-K-puszta', skiprows=2)
+    new_cols = ['timeseries', '7018', '611', '7029', '7380', '7014', '7419', '7013', '656',
+                '7015']
+    k_puszta_riv_df.columns = new_cols
+    k_puszta_riv_times = ['31.01.2016 24:00', '29.02.2016 24:00', '31.03.2016 24:00',
+                          '30.04.2016 24:00', '31.05.2016 24:00', '30.06.2016 24:00',
+                          '31.07.2016 24:00', '31.08.2016 24:00', '30.09.2016 24:00',
+                          '31.10.2016 24:00', '30.11.2016 24:00', '31.12.2016 24:00']
+    k_puszta_riv_df = k_puszta_riv_df[np.isfinite(k_puszta_riv_df['timeseries'])]
+
+    for code in new_cols[1:]:
+        try:
+            in_pollutants = pollutants[code]
+        except KeyError:
+            in_pollutants = {}
+        timeseries = map(lambda x,y: (x,str(y)), k_puszta_riv_times,k_puszta_riv_df[code])
+        timeseries = list(filter(lambda x: x[1] != 'nan', timeseries))
+        in_pollutants['HU0002R'] = {'time': 'month', 'metric': 'ug/m3',
+                                    'timeseries': timeseries}
+        pollutants[code] = in_pollutants
     return pollutants
 
 def get_pollutant_observing(sp_df, time_series, metric, observ_time):
@@ -197,10 +229,15 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
                 start_hour = '0' + str(start_hour) if start_hour < 10 else str(start_hour)
                 start_time = time_string_format % (
                 year, month, day, start_hour, minute, '00')
-            else:  # elif observ_time == 'day':
+            elif observ_time == 'day':
                 start_time = time_string_format % (year, month, day, '00', minute, '00')
-            # else:
-            #     end_time = t + timedelta(months=1)
+            else:
+                start_day = '01'
+                start_hour = '01'
+                start_time = time_string_format % (year, month, start_day,
+                                                   start_hour, minute, '00')
+
+            #     end_time =
             values += '%s,%s,%s,1,1@@' % (start_time, end_time, f.strip())
             if month > month_changer:
                 values += '\n'
@@ -237,11 +274,37 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
 
 def main(drv, mdb):
     con = init_connection(drv, mdb)
+    responsible_df = pd.read_sql_query(GET_RESPONSIBLE_QUERY.format(code_comb=CODE_COMB),
+                                       con)
     #sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
 
     obp_list_string, observations = get_obp_list()
 
-    save_xml(obp_list_string+observations, filename='E.xml')
+    resp = read_structure(STRUCTURE_LOCATION.format(filename='resp.txt'))
+    xml = read_structure(STRUCTURE_LOCATION.format(filename='header_e.txt'))
+
+    resp = sub('\{localid\}', LOCALID, resp)
+    resp = sub('\{part\}', PART, resp)
+    resp_to_replace = get_fields_to_replace(resp, prefix='resp')
+
+    responsible_string = ''
+
+    # todo is a loop necessary in this case?
+    for index, row in responsible_df.iterrows():
+        actual_person = sub_all(resp_to_replace, row, resp)
+        # todo hardcode
+        actual_person = sub('\{obp_list\}', obp_list_string, actual_person)
+        print(actual_person)
+        responsible_string += actual_person
+
+    xml = sub('\{responsible_xml_part\}', responsible_string, xml)
+    xml = sub('\{eval_xml_part\}', observations.rstrip(), xml)
+    xml = sub('\{localid\}', LOCALID, xml)
+    xml = sub('\{year\}', YEAR, xml)
+    xml = sub('\{part\}', PART, xml)
+    save_xml(xml, filename='REP_D-' + LOCALID + '_E_001.xml')
+
+    #save_xml(obp_list_string+observations, filename='E.xml')
 
 
 if __name__ == '__main__':
