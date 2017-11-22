@@ -1,0 +1,24 @@
+	<gml:featureMember>
+		<aqd:AQD_ModelArea gml:id="MDA-OBJ_EST">
+			<sam:sampledFeature nilReason="inapplicable" xsi:nil="true"/>
+			<sams:shape xlink:href="http://cdr.eionet.europa.eu/nl/eu/aqd/b/envwa6r9w/airquality_zone_agglomeration_v2013.shp"/>
+			<aqd:inspireId>
+				<base:Identifier>
+					<base:localId>MDA-OBJ_EST</base:localId>
+					<base:namespace>HU.OMSZ.AQ</base:namespace>
+				</base:Identifier>
+			</aqd:inspireId>
+		</aqd:AQD_ModelArea>
+	</gml:featureMember>
+	<gml:featureMember>
+		<aqd:AQD_ModelArea gml:id="MDA-OPS.PRO">
+			<sam:sampledFeature nilReason="inapplicable" xsi:nil="true"/>
+			<sams:shape xlink:href="http://cdr.eionet.europa.eu/nl/eu/aqd/b/envwa6r9w/airquality_zone_agglomeration_v2013.shp"/>
+			<aqd:inspireId>
+				<base:Identifier>
+					<base:localId>MDA-OPS.PRO</base:localId>
+					<base:namespace>HU.OMSZ.AQ</base:namespace>
+				</base:Identifier>
+			</aqd:inspireId>
+		</aqd:AQD_ModelArea>
+	</gml:featureMember>

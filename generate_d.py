@@ -254,11 +254,11 @@ def generate_contents(con):
     network_file_df = network_file_df.sort_values('network_code')
     # drop those from db df which are in file df
     network_db_df = network_db_df[~network_db_df['network_code'].isin(network_file_df['network_code'])]
-
+    print(network_db_df)
     station_df = pd.read_excel('AQIS_HU_Station-001_mod_s_add.xls')
 
-    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
-
+    #sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
+    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-all_jav.xls')
     # generate processes
     for index, row in process_df.iterrows():
         process_list += CONTENT_STRING.format(name=row['process_id'])
