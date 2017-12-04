@@ -30,7 +30,8 @@ def format_component_code(component_code):
 
 
 def get_obp_list():
-    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
+    #sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-003_2016_mod.xls')
+    sampling_point_df = pd.read_excel('AQIS_HU_SamplingPoint-all_jav.xls')
 
     code_list = [20,10,431,464,8,9,7,482,1,21,5,5014,5015,5018,5029,5380,5419,5610,5655,
                  6001,7018,7013,7014,7015,7029,611,7380,7419,656]
@@ -67,7 +68,9 @@ def get_obp_list():
         except KeyError as k:
             ts = ''
             metric = ''
-            observ_time = ''
+            # todo check if it is okay!!!
+            print(row)
+            observ_time = 'NaD'
         observ += get_pollutant_observing(row, ts, metric, observ_time) + '\n'
 
     return obp_list.rstrip(), observ.rstrip()
@@ -117,7 +120,7 @@ def get_timeseries():
             station_dict[st_code]['time'] = observ_time
             station_dict[st_code]['timeseries'] = [tuple(x) for x in current_df.values]
 
-        pollutants[code ] = station_dict
+        pollutants[code] = station_dict
 
     ## riv
     riv_mapping = {'PM10':'5','PM2.5':'6001', 'AS':'7018','Cd':'7014','Ni':'7015',
@@ -131,8 +134,10 @@ def get_timeseries():
         riv_df.columns = new_cols
         try:
             in_pollutants = pollutants[riv_mapping[sheet]]
+            in_pollutants_flag = True
         except KeyError:
             in_pollutants = {}
+            in_pollutants_flag = False
         for code in new_cols[1:]:
             dates = map(lambda x: str(x), list(riv_df['timestamps']))
             values = map(lambda x: str(x), list(riv_df[code]))
@@ -155,18 +160,21 @@ def get_timeseries():
         kp_df.columns=['time', 'value']
         in_pollutants = pollutants[k_puszta_mapping[sheet]]
         if sheet == 'O3':
+            t = 'hour'
             timeseries = []
             for i, time_row in kp_df.iterrows():
                 d,t = str(time_row['time']).split()
                 y,m,d = d.split('-')
                 timeseries.append((d+'.'+m+'.'+y+' '+t[:5], time_row['value']))
         else:
+            t = 'day'
             timeseries = []
             for i, time_row in kp_df.iterrows():
                 d, t = str(time_row['time']).split()
                 y, m, d = d.split('-')
                 timeseries.append((d + '.' + m + '.' + y + ' 24:00' , time_row['value']))
-        kpuszta_new = {'time': 'day', 'metric': 'ug/m3', 'timeseries': timeseries}
+
+        kpuszta_new = {'time': t, 'metric': 'ug/m3', 'timeseries': timeseries}
         in_pollutants['HU0002R'] = kpuszta_new
         pollutants[k_puszta_mapping[sheet]] = in_pollutants
 
@@ -213,10 +221,11 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
     # todo fix metric
     values = ''
     month_changer = '00'
+
     for ts in time_series:
         dt, f = ts.split(',')
         try:
-            float(f)
+
             date_part, hour_part = dt.split(' ')
             year, month, day, hour, minute = (date_part[:4], date_part[4:6], date_part[6:8],
                                               hour_part.split(':')[0],
@@ -237,12 +246,13 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
                 start_time = time_string_format % (year, month, start_day,
                                                    start_hour, minute, '00')
 
-            #     end_time =
+            float(f)
             values += '%s,%s,%s,1,1@@' % (start_time, end_time, f.strip())
-            if month > month_changer:
-                values += '\n'
-                month_changer = month
+            # if month > month_changer:
+            #     values += '\n'
+            #     month_changer = month
         except ValueError:
+            values += '%s,%s,-9999,1,-1@@' % (start_time, end_time)
             continue
 
     structure = read_structure(STRUCTURE_LOCATION.format(filename='samplings.txt'))

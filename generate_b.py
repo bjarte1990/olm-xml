@@ -146,8 +146,8 @@ def main(drv, mdb):
 
     con = init_connection(drv, mdb)
 
-    zones_df = read_sql_query(GET_ZONES_QUERY, con)
-    zones_df = modify_zones_df(zones_df)
+    #zones_df = read_sql_query(GET_ZONES_QUERY, con)
+    #zones_df = modify_zones_df(zones_df)
 
     zones_df = read_zones_from_file()
     responsible_df = read_sql_query(GET_RESPONSIBLE_QUERY, con)
