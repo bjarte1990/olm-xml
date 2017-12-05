@@ -160,21 +160,21 @@ def get_timeseries():
         kp_df.columns=['time', 'value']
         in_pollutants = pollutants[k_puszta_mapping[sheet]]
         if sheet == 'O3':
-            t = 'hour'
+            time_cat = 'hour'
             timeseries = []
             for i, time_row in kp_df.iterrows():
                 d,t = str(time_row['time']).split()
                 y,m,d = d.split('-')
                 timeseries.append((d+'.'+m+'.'+y+' '+t[:5], time_row['value']))
         else:
-            t = 'day'
+            time_cat = 'day'
             timeseries = []
             for i, time_row in kp_df.iterrows():
                 d, t = str(time_row['time']).split()
                 y, m, d = d.split('-')
                 timeseries.append((d + '.' + m + '.' + y + ' 24:00' , time_row['value']))
 
-        kpuszta_new = {'time': t, 'metric': 'ug/m3', 'timeseries': timeseries}
+        kpuszta_new = {'time': time_cat, 'metric': 'ug/m3', 'timeseries': timeseries}
         in_pollutants['HU0002R'] = kpuszta_new
         pollutants[k_puszta_mapping[sheet]] = in_pollutants
 
