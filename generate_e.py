@@ -23,6 +23,14 @@ GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
                         "INNER JOIN organization o on o.og_code = ra.og_code " \
                         "WHERE ra.nn_code_iso2 = 'hu' AND ra.ac_code_comb = {code_comb}"
 
+METRICS = {'5018': 'ng.m-3','5610':'ng.m-3','5029':'ng.m-3','20':'ug.m-3','5380':'ng.m-3',
+           '5014':'ng.m-3','10':'ug.m-3','5419':'ng.m-3','431':'ug.m-3','5655':'ng.m-3',
+           '464':'ug.m-3','5015':'ng.m-3','8':'ug.m-3','9':'ug.m-3','7':'ug.m-3',
+           '482':'ug.m-3','5':'ug.m-3','6001':'ug.m-3','1':'ug.m-3','21':'ug.m-3',
+           '7018':'ng.m-2.day-1','611':'ng.m-2.day-1','7029':'ng.m-2.day-1',
+           '7380':'ng.m-2.day-1','7014':'ng.m-2.day-1','7419':'ng.m-2.day-1',
+           '7013':'ng.m-2.day-1','656':'ng.m-2.day-1','7015':'ng.m-2.day-1'}
+
 CODE_COMB = 3
 
 def format_component_code(component_code):
@@ -53,7 +61,7 @@ def get_obp_list():
         else:
             current_spo = re.sub('\{oc_id\}', str(int(row['oc_id_new'])), current_spo)
 
-        obp_list += current_spo
+        #obp_list += current_spo
         try:
             data = time_series[str(row['component_code'])][str(row['station_eoi_code'])]
             ts = list(map(lambda x: x[0].split(' ')[0].split('.')[2] +
@@ -62,16 +70,19 @@ def get_obp_list():
                                x[0].split(' ')[1] +
                                     #('00:00' if x[0].split(' ')[1] == '24:00' else x[0].split(' ')[1]) +
                                ', ' + str(x[1]), data['timeseries']))
+            metric = METRICS[str(row['component_code'])]
 
-            metric = data['metric']
+            #metric = data['metric']
             observ_time = data['time']
+            obp_list += current_spo
+            observ += get_pollutant_observing(row, ts, metric, observ_time) + '\n'
         except KeyError as k:
             ts = ''
             metric = ''
             # todo check if it is okay!!!
             print(row)
             observ_time = 'NaD'
-        observ += get_pollutant_observing(row, ts, metric, observ_time) + '\n'
+        #observ += get_pollutant_observing(row, ts, metric, observ_time) + '\n'
 
     return obp_list.rstrip(), observ.rstrip()
 
@@ -162,9 +173,18 @@ def get_timeseries():
         if sheet == 'O3':
             time_cat = 'hour'
             timeseries = []
+            last_m = ''
+            last_d = ''
             for i, time_row in kp_df.iterrows():
                 d,t = str(time_row['time']).split()
                 y,m,d = d.split('-')
+
+                if t[:5] == '00:00':
+                    t = '24:00:00'
+                    m = last_m
+                    d = last_d
+                last_m = m
+                last_d = d
                 timeseries.append((d+'.'+m+'.'+y+' '+t[:5], time_row['value']))
         else:
             time_cat = 'day'
@@ -264,6 +284,7 @@ def get_pollutant_observing(sp_df, time_series, metric, observ_time):
     structure = re.sub('\{observation_quantity\}', observ_time, structure)
     structure = re.sub('\{original_component_code\}', str(sp_df['component_code']),
                        structure)
+    structure = re.sub('\{metric\}', metric, structure)
     try:
         structure = re.sub('\{process_id\}', sp_df['process_id'], structure)
     except:

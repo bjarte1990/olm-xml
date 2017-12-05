@@ -46,7 +46,7 @@
 						</swe:field>
 						<swe:field name="Value">
 							<swe:Quantity definition = "http://dd.eionet.europa.eu/vocabulary/aq/primaryObservation/{observation_quantity}">
-								<swe:uom xlink:href="http://dd.eionet.europa.eu/vocabulary/uom/concentration/ug.m-3"/>
+								<swe:uom xlink:href="http://dd.eionet.europa.eu/vocabulary/uom/concentration/{metric}"/>
 							</swe:Quantity>
 						</swe:field>
 							<swe:field name="Verification">

@@ -155,7 +155,7 @@ def create_responsible_part(responsible_df, zone_metrics_df):
 
 def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
     eval_file = 'Attainments_HU-001_2016.xls'
-    station_file = 'AQIS_HU_Station-001_mod.xls'
+    station_file = 'AQIS_HU_Station-001_mod_s_add.xls'
     false_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_false.txt'))
     true_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_true.txt'))
 
