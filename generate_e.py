@@ -90,10 +90,12 @@ def get_obp_list():
 def get_timeseries():
     files = [('BENZOL','20'), ('CO','10'), ('ETILBENZOL','431'), ('MP XILOL','464'),
              ('NO2','8'),('NOX','9'), ('O3','7'), ('OXYLENE','482'), ('SO2','1'),
-             ('TOLUOL','21'), ('PM10','5'),('PM10','5014'),('PM10','5015'),('PM10','5018'),
-             ('PM10','5029'),('PM10','5380'),('PM10', '5419'),('PM10','5610'),
-             ('PM10','5655'),('PM25','6001'),
+             ('TOLUOL','21'), ('PM10','5'), ('PM25','6001'),
              ]
+             # ('PM10','5014'),('PM10','5015'),('PM10','5018'),
+             # ('PM10','5029'),('PM10','5380'),('PM10', '5419'),('PM10','5610'),
+             # ('PM10','5655')
+             # ]
 
 
     # with open('timeseries/mapping.txt') as f:
@@ -134,8 +136,8 @@ def get_timeseries():
         pollutants[code] = station_dict
 
     ## riv
-    riv_mapping = {'PM10':'5','PM2.5':'6001', 'AS':'7018','Cd':'7014','Ni':'7015',
-                   'BaP':'7029','BaA':'611','Bfo':'7380','dBaA':'7419','I1P':'656'}
+    riv_mapping = {'PM10': '5', 'PM2.5': '6001', 'AS': '5018', 'Cd': '5014', 'Ni': '5015',
+                   'BaP': '5029', 'BaA': '5610', 'Bfo': '5380', 'dBaA': '5419', 'I1P': '5655'}
     print(riv_mapping.keys())
     riv_dfs = pd.read_excel('timeseries/riv_adatsorok2016.xls',
                             sheetname=list(riv_mapping.keys()), skiprows=1)
@@ -152,9 +154,13 @@ def get_timeseries():
         for code in new_cols[1:]:
             dates = map(lambda x: str(x), list(riv_df['timestamps']))
             values = map(lambda x: str(x), list(riv_df[code]))
-            timeseries = list(filter(lambda x: x[1] != "nan",
-                                (map(lambda x, y: (x[6:8]+'.'+x[4:6]+'.'+x[:4]+' 24:00', y),
-                                  dates, values))))
+            # timeseries = list(filter(lambda x: x[1] != "nan",
+            #                     (map(lambda x, y: (x[6:8]+'.'+x[4:6]+'.'+x[:4]+' 24:00', y),
+            #                       dates, values))))
+            timeseries = list(map(lambda x: (x[0], 'not_a_value' if x[1] == 'nan' else x[1]),
+                                  map(lambda x, y: (
+                                     x[6:8] + '.' + x[4:6] + '.' + x[:4] + ' 24:00', y),
+                                          dates, values)))
             new_entry = {'time': 'day', 'metric': 'ug/m3', 'timeseries': timeseries}
             in_pollutants[code] = new_entry
             pollutants[riv_mapping[sheet]] = in_pollutants
