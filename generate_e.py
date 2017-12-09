@@ -44,7 +44,7 @@ def get_obp_list():
     code_list = [20,10,431,464,8,9,7,482,1,21,5,5014,5015,5018,5029,5380,5419,5610,5655,
                  6001,7018,7013,7014,7015,7029,611,7380,7419,656]
     reduced_sp_df = sampling_point_df.drop_duplicates(
-        subset=['station_eoi_code', 'component_code'], keep='last')
+        subset=['station_eoi_code', 'component_code', 'oc_id_new'], keep='last')
     reduced_sp_df = reduced_sp_df[reduced_sp_df['component_code'].isin(code_list)]
     time_series = get_timeseries()
     obp_list = ''
@@ -157,7 +157,8 @@ def get_timeseries():
             # timeseries = list(filter(lambda x: x[1] != "nan",
             #                     (map(lambda x, y: (x[6:8]+'.'+x[4:6]+'.'+x[:4]+' 24:00', y),
             #                       dates, values))))
-            timeseries = list(map(lambda x: (x[0], 'not_a_value' if x[1] == 'nan' else x[1]),
+            timeseries = list(map(lambda x: (x[0], 'not_a_value' if x[1] == 'nan' else
+                                  str(x[1]).replace(' ', '')),
                                   map(lambda x, y: (
                                      x[6:8] + '.' + x[4:6] + '.' + x[:4] + ' 24:00', y),
                                           dates, values)))
@@ -221,8 +222,11 @@ def get_timeseries():
             in_pollutants = pollutants[code]
         except KeyError:
             in_pollutants = {}
-        timeseries = map(lambda x,y: (x,str(y)), k_puszta_riv_times,k_puszta_riv_df[code])
-        timeseries = list(filter(lambda x: x[1] != 'nan', timeseries))
+        timeseries = map(lambda x,y: (x,str(y).replace(u'\xa0','')),
+                         k_puszta_riv_times,k_puszta_riv_df[code])
+        #timeseries = list(filter(lambda x: x[1] != 'nan', timeseries))
+        timeseries = list(map(lambda x: (x[0], 'not_a_value' if x[1] == 'nan' else x[1]),
+                              timeseries))
         in_pollutants['HU0002R'] = {'time': 'month', 'metric': 'ug/m3',
                                     'timeseries': timeseries}
         pollutants[code] = in_pollutants

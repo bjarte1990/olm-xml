@@ -20,7 +20,7 @@ COMMENT_STRING = '<aqd:comment/>'
 
 G_SAMPLING_POINTS_STRING = '\n\t\t\t\t\t\t\t<aqd:stationUsed ' \
                          'xlink:href="{namespace}/' \
-                         'SPO-{sn_eu_code}_{cp_number}_{mc_group_code}"/>'
+                         'SPO-{station_eoi_code}_{component_code}_{spo_id}"/>'
 
 GET_RESPONSIBLE_QUERY = "SELECT * FROM (AQD_responsible_authority ra " \
                         "INNER JOIN person p on p.ps_code = ra.ps_code) " \
@@ -45,6 +45,7 @@ def generate_sampling_points_for_g(sampling_points_df):
 
     pollutants_string = ''
     for index, row in sampling_points_df.iterrows():
+        row['component_code'] = ''.join(['0']*(5-len(str(row['component_code'])))) + str(row['component_code'])
         pollutants_string += sub_all(poll_to_replace, row, structure)
 
     return pollutants_string.rstrip()
@@ -154,18 +155,25 @@ def create_responsible_part(responsible_df, zone_metrics_df):
 
 
 def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
-    eval_file = 'Attainments_HU-001_2016.xls'
-    station_file = 'AQIS_HU_Station-001_mod_s_add.xls'
+    eval_file = 'Attainments_HU-001_2016_v2.xls'
+    station_file = 'AQIS_HU_Station-001_mod_s_add_net_change.xls'
     false_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_false.txt'))
     true_structure = read_structure(STRUCTURE_LOCATION.format(filename='areas_g_true.txt'))
 
     evaluation_df = pd.read_excel(eval_file)
-    station_df = pd.read_excel(station_file)[['station_eoi_code', 'station_type_of_area']]
-
+    #station_df = pd.read_excel('AQIS_HU_Station-001_mod_s_add.xls')
+    station_df = pd.read_excel(station_file).iloc[:50]#[['station_eoi_code', 'station_type_of_area']]
+    station_codes = pd.read_excel('Allomaskodok_e.xls')[['EoI code', 'Zone code']]
+    station_df = station_df.merge(station_codes, left_on=['station_eoi_code'],
+                                  right_on=['EoI code'])
+    print(station_df)
     zone_evaluation_df = zone_metrics_df.merge(evaluation_df,
                                                left_on=['zn_code', 'env_poll_code'],
                                                right_on=['zone_code', 'ENV_pollutant'])
 
+    sampling_points_df = sampling_points_df.merge(station_df, on='station_eoi_code')#.\
+        #drop_duplicates(subset=['station_eoi_code', 'component_code', 'spo_id', 'oc_id'])
+    print(sampling_points_df)
     # zone_evaluation_df = zone_evaluation_df.merge(station_df, left_on=['zn_code'],
     #                                               right_on=['station_eoi_code'])
     #
@@ -178,6 +186,7 @@ def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
             current_structure = true_structure
             current_structure = parse_info(row, current_structure)
 
+        print(row)
         areas_to_replace = get_fields_to_replace(current_structure, prefix='zone')
         cp_number = ''.join(['0'] * (5 - len(str(row['cp_number'])))) + str(
             row['cp_number'])
@@ -186,20 +195,23 @@ def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
         zone_evaluation_string += actual_area
 
         actual_sampling_points = sampling_points_df[
-            sampling_points_df['cp_number'] == row['cp_number']]
+            sampling_points_df['component_code'] == row['cp_number']]
+        #print(actual_sampling_points['Zone code'])
+        print(row)
+        print(actual_sampling_points['Zone code'])
         actual_sampling_points = actual_sampling_points.loc[
-            (actual_sampling_points['zn_code'] == row['zn_code'])]
+            (actual_sampling_points['Zone code'] == row['zn_code'])]
 
-        sn_codes = list(actual_sampling_points['sn_code'].drop_duplicates())
+        sn_codes = list(actual_sampling_points['station_eoi_code'].drop_duplicates())
 
         actual_sampling_points = sampling_points_df[
-            sampling_points_df['sn_code'].isin(sn_codes)]
+            sampling_points_df['station_eoi_code'].isin(sn_codes)]
         actual_sampling_points = actual_sampling_points.loc[
-            (actual_sampling_points['cp_number'] == row['cp_number'])]
+            (actual_sampling_points['component_code'] == row['cp_number'])]
 
-        actual_sampling_points = actual_sampling_points.merge(station_df,
-                                                              left_on='sn_eu_code',
-                                                              right_on='station_eoi_code')
+        # actual_sampling_points = actual_sampling_points.merge(station_df,
+        #                                                       left_on='station_eoi_code',
+        #                                                       right_on='station_eoi_code')
         station_class_string = '\n'
         for station_type in set(actual_sampling_points['station_type_of_area']):
             station_class_string += '\t\t\t\t\t\t\t<aqd:areaClassification xlink:href=' \
@@ -207,10 +219,13 @@ def get_detailed_evaluation(zone_metrics_df, sampling_points_df):
                                     'areaclassification/{t}"/>\n'.format(t=station_type)
         zone_evaluation_string = sub('\{area_classification\}', station_class_string,
                                         zone_evaluation_string)
-
-        zone_evaluation_string = sub('\{exc\.stations\}',
-                                        generate_sampling_points_for_g(actual_sampling_points),
-                                        zone_evaluation_string)
+        print(actual_sampling_points)
+        try:
+            zone_evaluation_string = sub('\{exc\.stations\}',
+                                            generate_sampling_points_for_g(actual_sampling_points),
+                                            zone_evaluation_string)
+        except:
+            continue
         # station_df[station_df['station_eoi_code'] == 'HU0017A'][
         #     'station_type_of_area'].item()
 
@@ -230,7 +245,10 @@ def main(drv, mdb):
                                                               'rep_metric', ])
     zone_metrics_df = evaluate_zones(zone_metrics_df)
 
-    sampling_points_df = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
+    sampling_points_df_2 = pd.read_sql_query(SAMPLING_POINT_QUERY, con)
+
+    sampling_points_df = pd.read_excel('AQIS_HU_SamplingPoint-all_jav.xls')
+
     responsible_string = create_responsible_part(responsible_df, zone_metrics_df)
     zone_evaluation_string = get_detailed_evaluation(zone_metrics_df, sampling_points_df)
 
