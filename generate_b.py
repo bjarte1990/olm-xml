@@ -9,7 +9,7 @@ CODE_COMB = 3
 DATESTRING = strftime("%Y%m%d", gmtime())
 LOCALID = "HU_OMSZ_" + DATESTRING
 PART = "B"
-YEAR = '2016'
+YEAR = '2017'
 #2016-10-06T11:35:06+01:00
 DATESTRING_LONG = strftime('%Y-%m-%dT%H:%M:%S+01:00')
 
@@ -71,21 +71,6 @@ def get_pollutants_for_zone(con, row):
     return pollutant_string.rstrip()
 
 
-def modify_zones_df(zones_df):
-    modified_df = read_excel('Zones_HU-001_mod.xls')
-    for _, row in modified_df.iterrows():
-        if row['change'] == 'M':
-            idx = zones_df[zones_df['zn_code'] == row['zone_code']].index
-            zones_df.set_value(idx, 'zn_startyear', row['start_year'])
-            zones_df.set_value(idx, 'zn_type', row['zone_type'])
-            zones_df.set_value(idx, 'zn_name', row['zone_name'])
-            zones_df.set_value(idx, 'zn_area', row['zone_area (in km2)'])
-            zones_df.set_value(idx, 'zn_population', row['zone_population'])
-            zones_df.set_value(idx, 'zn_population_year', row['zone_population_year'])
-            zones_df.set_value(idx, 'zn_geometry', row['zone_geometry_file'])
-    return zones_df
-
-
 def read_zones_from_file():
     zones_df = read_excel('Zones_mod_%s.xls' % YEAR )
     columns = ['change', 'zn_code', 'zn_name', 'zn_startyear', 'end_year',
@@ -94,16 +79,7 @@ def read_zones_from_file():
        'geometry_type', 'zn_geometry', 'LAU_codes',
        'zone_change_description', 'time_extension_type']
     zones_df.columns = columns
-    # for _, row in modified_df.iterrows():
-    #     if row['change'] == 'M':
-    #         idx = zones_df[zones_df['zn_code'] == row['zone_code']].index
-    #         zones_df.set_value(idx, 'zn_startyear', row['start_year'])
-    #         zones_df.set_value(idx, 'zn_type', row['zone_type'])
-    #         zones_df.set_value(idx, 'zn_name', row['zone_name'])
-    #         zones_df.set_value(idx, 'zn_area', row['zone_area (in km2)'])
-    #         zones_df.set_value(idx, 'zn_population', row['zone_population'])
-    #         zones_df.set_value(idx, 'zn_population_year', row['zone_population_year'])
-    #         zones_df.set_value(idx, 'zn_geometry', row['zone_geometry_file'])
+
     return zones_df
 
 def create_zones(con, zones_df, responsible_person):
@@ -145,9 +121,6 @@ def create_xml_structure(con, responsible_df, zones_df):
 def main(drv, mdb):
 
     con = init_connection(drv, mdb)
-
-    #zones_df = read_sql_query(GET_ZONES_QUERY, con)
-    #zones_df = modify_zones_df(zones_df)
 
     zones_df = read_zones_from_file()
     responsible_df = read_sql_query(GET_RESPONSIBLE_QUERY, con)
